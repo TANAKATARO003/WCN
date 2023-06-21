@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "524232245753",
+    "project_id": "wakayamacampusnavi",
+    "storage_bucket": "wakayamacampusnavi.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:524232245753:android:4d29f48975a76f96eebd28",
+        "android_client_info": {
+          "package_name": "com.example.home"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "524232245753-93puagm7ii4e52qiit3b83ug5arh7l54.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCF5oiKUv_xk_EiwLuAXUdvOkwnDuxh2mM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "524232245753-93puagm7ii4e52qiit3b83ug5arh7l54.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
