@@ -1,0 +1,2 @@
+# WCN
+Wakayama Campus Navi
