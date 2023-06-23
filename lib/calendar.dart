@@ -6,7 +6,8 @@ class Calendar extends StatefulWidget {
   _CalendarState createState() => _CalendarState();
 }
 
-class _CalendarState extends State<Calendar> with SingleTickerProviderStateMixin {
+class _CalendarState extends State<Calendar>
+    with SingleTickerProviderStateMixin {
   TabController? _tabController;
 
   @override
@@ -48,63 +49,64 @@ class _CalendarState extends State<Calendar> with SingleTickerProviderStateMixin
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF0F0F0),  // 背景色を設定。色を変えたい場合はこの値を変更
+      backgroundColor: Color(0xFFF0F0F0), // 背景色を設定。色を変えたい場合はこの値を変更
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(90.0),
         child: AppBar(
           title: Text(
             "カレンダー",
             style: TextStyle(
-                fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),  // タイトルのスタイル設定
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.black), // タイトルのスタイル設定
           ),
-          shadowColor: Colors.grey.withOpacity(0.5),  // 影の色と透明度を設定
-          backgroundColor: Colors.white,  // AppBarの背景色を設定
-          elevation: 1.5,  // AppBarの影の高さを「1.5」に設定
-          centerTitle: true,  // タイトルを中央に配置
+          shadowColor: Colors.grey.withOpacity(0.5), // 影の色と透明度を設定
+          backgroundColor: Colors.white, // AppBarの背景色を設定
+          elevation: 1.5, // AppBarの影の高さを「1.5」に設定
+          centerTitle: true, // タイトルを中央に配置
           bottom: PreferredSize(
             preferredSize: Size.fromHeight(50.0),
             child: TabBar(
               controller: _tabController,
-              indicatorColor: Color(0xffed6102),  // インジケータの色を設定
-              indicatorSize: TabBarIndicatorSize.tab,  // インジケータのサイズを設定
-              indicatorWeight: 3.0,  // インジケータの太さを設定
-              isScrollable: false,  // スクロール可能かを設定
-              labelColor: Colors.black,  // ラベルの色を設定
-              unselectedLabelColor: Color(0xff808080),  // 未選択ラベルの色を設定
-              labelPadding: EdgeInsets.all(0),  // タブラベル周辺の余白を削除
+              indicatorColor: Color(0xffed6102), // インジケータの色を設定
+              indicatorSize: TabBarIndicatorSize.tab, // インジケータのサイズを設定
+              indicatorWeight: 3.0, // インジケータの太さを設定
+              isScrollable: false, // スクロール可能かを設定
+              labelColor: Colors.black, // ラベルの色を設定
+              unselectedLabelColor: Color(0xff808080), // 未選択ラベルの色を設定
+              labelPadding: EdgeInsets.all(0), // タブラベル周辺の余白を削除
               tabs: List<Widget>.generate(
-                5,  // タブの数を設定
-                    (index) {
+                5, // タブの数を設定
+                (index) {
                   final date = DateTime.now().add(Duration(days: index));
-                  final weekdayInJapaneseShort = getWeekdayInJapaneseShort(
-                      date.weekday);
+                  final weekdayInJapaneseShort =
+                      getWeekdayInJapaneseShort(date.weekday);
                   final monthDay = "${date.month}/${date.day}";
 
                   return Container(
-                    width: MediaQuery
-                        .of(context)
-                        .size
-                        .width / 5,  // スクリーンの幅を5で割る
+                    width:
+                        MediaQuery.of(context).size.width / 5, // スクリーンの幅を5で割る
                     child: Tab(
                       child: RichText(
                         textAlign: TextAlign.center,
                         text: TextSpan(
                           children: <TextSpan>[
                             TextSpan(
-                              text: '${monthDay.split('/')[0]}/',  // 月日の月部分を設定
-                              style: TextStyle(
-                                  fontSize: 14, color: Colors.black),
+                              text: '${monthDay.split('/')[0]}/', // 月日の月部分を設定
+                              style:
+                                  TextStyle(fontSize: 14, color: Colors.black),
                             ),
                             TextSpan(
-                              text: '${monthDay.split('/')[1]}',  // 月日の日部分を設定
-                              style: TextStyle(fontSize: 16,
+                              text: '${monthDay.split('/')[1]}', // 月日の日部分を設定
+                              style: TextStyle(
+                                  fontSize: 16,
                                   fontWeight: FontWeight.w500,
                                   color: Colors.black),
                             ),
                             TextSpan(
-                              text: '\u2009($weekdayInJapaneseShort)',  // 曜日を設定
-                              style: TextStyle(
-                                  fontSize: 10, color: Colors.black),
+                              text: '\u2009($weekdayInJapaneseShort)', // 曜日を設定
+                              style:
+                                  TextStyle(fontSize: 10, color: Colors.black),
                             ),
                           ],
                         ),
@@ -117,11 +119,28 @@ class _CalendarState extends State<Calendar> with SingleTickerProviderStateMixin
           ),
         ),
       ),
-      body: Center(
-        child: Text(
-          "calendar",
-          style: TextStyle(fontSize: 20),  // 本文のスタイル設定
+      body: Container(
+        child: TabBarView(
+          controller: _tabController,
+          children: [
+            Container(
+              child: Text('1'),
+            ),
+            Container(
+              child: Text('2'),
+            ),
+            Container(
+              child: Text('3'),
+            ),
+            Container(
+              child: Text('4'),
+            ),
+            Container(
+              child: Text('5'),
+            ),
+          ],
         ),
+        floatingActionButton: FloatingActionButton(onPressed: () {}),
       ),
     );
   }
