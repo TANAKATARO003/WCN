@@ -10,6 +10,8 @@ class _CalendarState extends State<Calendar>
     with SingleTickerProviderStateMixin {
   TabController? _tabController;
 
+  final _calendarKey = GlobalKey<FormState>();
+
   @override
   void initState() {
     super.initState();
@@ -123,25 +125,46 @@ class _CalendarState extends State<Calendar>
         child: TabBarView(
           controller: _tabController,
           children: [
-            Container(
-              child: Text('1'),
-            ),
-            Container(
-              child: Text('2'),
-            ),
-            Container(
-              child: Text('3'),
-            ),
-            Container(
-              child: Text('4'),
-            ),
-            Container(
-              child: Text('5'),
-            ),
+            Container(),
+            Container(),
+            Container(),
+            Container(),
+            Container(),
           ],
         ),
-        floatingActionButton: FloatingActionButton(onPressed: () {}),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showAddPostDialog(context),
+        child: Icon(Icons.add),
+        backgroundColor: Color(0xffed6102), // 任意のカラーコードを設定
+      ),
+    );
+  }
+
+  void _showAddPostDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: SingleChildScrollView(
+            child: Form(
+              key: _calendarKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('講義の登録'),
+                  TextFormField(
+                    decoration: const InputDecoration(
+                      border: UnderlineInputBorder(),
+                      labelText: '講義名',
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
