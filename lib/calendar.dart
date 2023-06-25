@@ -9,20 +9,21 @@ class Calendar extends StatefulWidget {
 class _CalendarState extends State<Calendar>
     with SingleTickerProviderStateMixin {
   TabController? _tabController;
-
-  final _calendarKey = GlobalKey<FormState>();
+  late FocusNode myFocusNode;
 
   @override
   void initState() {
     super.initState();
     // 5つのタブを持つTabControllerを初期化
     _tabController = TabController(length: 5, vsync: this);
+    myFocusNode = FocusNode();
   }
 
   @override
   void dispose() {
     // TabControllerをdispose（解放）する
     _tabController?.dispose();
+    myFocusNode.dispose();
     super.dispose();
   }
 
@@ -134,7 +135,10 @@ class _CalendarState extends State<Calendar>
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddPostDialog(context),
+        onPressed: () {
+          _showAddPostDialog(context);
+          myFocusNode.requestFocus();
+        },
         child: Icon(Icons.add),
         backgroundColor: Color(0xffed6102), // 任意のカラーコードを設定
       ),
@@ -148,12 +152,12 @@ class _CalendarState extends State<Calendar>
         return AlertDialog(
           content: SingleChildScrollView(
             child: Form(
-              key: _calendarKey,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text('講義の登録'),
                   TextFormField(
+                    focusNode: myFocusNode,
                     decoration: const InputDecoration(
                       border: UnderlineInputBorder(),
                       labelText: '講義名',
