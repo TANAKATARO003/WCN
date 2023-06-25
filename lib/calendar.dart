@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 // カレンダーのウィジェット
 class Calendar extends StatefulWidget {
@@ -162,6 +163,13 @@ class _CalendarState extends State<Calendar>
                       border: UnderlineInputBorder(),
                       labelText: '講義名',
                     ),
+                    onChanged: (text) async {
+                      await FirebaseFirestore.instance
+                          .collection('classes')
+                          .add({
+                        'name': '$text',
+                      });
+                    },
                   ),
                 ],
               ),
