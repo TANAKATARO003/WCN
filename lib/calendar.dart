@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 // カレンダーのウィジェット
 class Calendar extends StatefulWidget {
@@ -10,21 +11,23 @@ class Calendar extends StatefulWidget {
 class _CalendarState extends State<Calendar>
     with SingleTickerProviderStateMixin {
   TabController? _tabController;
-  late FocusNode myFocusNode;
+
+  final _calendarKey = GlobalKey<FormState>();
+
+  final _nameController = TextEditingController();
+  String? _selectedAttribute;
 
   @override
   void initState() {
     super.initState();
     // 5つのタブを持つTabControllerを初期化
     _tabController = TabController(length: 5, vsync: this);
-    myFocusNode = FocusNode();
   }
 
   @override
   void dispose() {
     // TabControllerをdispose（解放）する
     _tabController?.dispose();
-    myFocusNode.dispose();
     super.dispose();
   }
 
@@ -138,7 +141,6 @@ class _CalendarState extends State<Calendar>
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           _showAddPostDialog(context);
-          myFocusNode.requestFocus();
         },
         child: Icon(Icons.add),
         backgroundColor: Color(0xffed6102), // 任意のカラーコードを設定
@@ -153,23 +155,68 @@ class _CalendarState extends State<Calendar>
         return AlertDialog(
           content: SingleChildScrollView(
             child: Form(
+              key: _calendarKey,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text('講義の登録'),
-                  TextFormField(
-                    focusNode: myFocusNode,
-                    decoration: const InputDecoration(
-                      border: UnderlineInputBorder(),
-                      labelText: '講義名',
-                    ),
-                    onChanged: (text) async {
-                      await FirebaseFirestore.instance
-                          .collection('classes')
-                          .add({
-                        'name': '$text',
+                  DropdownButtonFormField(
+                    value: _selectedAttribute,
+                    items: [
+                      DropdownMenuItem(
+                        child: Text("共通"),
+                        value: "共通",
+                      ),
+                      DropdownMenuItem(
+                        child: Text("教育学部"),
+                        value: "教育学部",
+                      ),
+                      DropdownMenuItem(
+                        child: Text("経済学部"),
+                        value: "経済学部",
+                      ),
+                      DropdownMenuItem(
+                        child: Text("観光学部"),
+                        value: "観光学部",
+                      ),
+                      DropdownMenuItem(
+                        child: Text("システム工学部"),
+                        value: "システム工学部",
+                      ),
+                      DropdownMenuItem(
+                        child: Text("社会インフォマティクス学環"),
+                        value: "社会インフォマティクス学環",
+                      ),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedAttribute = value as String?;
                       });
                     },
+                    decoration: InputDecoration(labelText: '時間割所属'),
+                    validator: (value) {
+                      if (value == null) {
+                        return '時間割所属を選択してください';
+                      }
+                      return null;
+                    },
+                  ),
+                  TextFormField(
+                    controller: _nameController,
+                    decoration: InputDecoration(labelText: '講義名'),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'タイトルを入力してください';
+                      }
+                      return null;
+                    },
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      _submitPost();
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('投稿する'),
                   ),
                 ],
               ),
@@ -178,5 +225,19 @@ class _CalendarState extends State<Calendar>
         );
       },
     );
+  }
+
+  Future<void> _submitPost() async {
+    if (_calendarKey.currentState!.validate() && _selectedAttribute != null) {
+      FirebaseFirestore.instance.collection('classes').add({
+        'name': _nameController.text,
+        'attribute': _selectedAttribute,
+      });
+
+      _nameController.clear();
+      setState(() {
+        _selectedAttribute = null;
+      });
+    }
   }
 }
