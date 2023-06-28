@@ -206,17 +206,19 @@ class _CalendarState extends State<Calendar>
                     decoration: InputDecoration(labelText: '講義名'),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'タイトルを入力してください';
+                        return '講義名を入力してください';
                       }
                       return null;
                     },
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      _submitPost();
-                      Navigator.of(context).pop();
+                      if (_calendarKey.currentState!.validate()) {
+                        _submitPost();
+                        Navigator.of(context).pop();
+                      }
                     },
-                    child: Text('投稿する'),
+                    child: Text('検索'),
                   ),
                 ],
               ),
