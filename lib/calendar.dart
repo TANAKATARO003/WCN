@@ -196,7 +196,7 @@ class _CalendarState extends State<Calendar>
                     decoration: InputDecoration(labelText: '時間割所属'),
                     validator: (value) {
                       if (value == null) {
-                        return '時間割所属を選択してください';
+                        return '時間割所属を選択してください!';
                       }
                       return null;
                     },
