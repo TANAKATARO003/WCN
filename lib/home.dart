@@ -25,7 +25,7 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
     final double imageWidth =
-        screenWidth > 400.0 ? 400.0 : screenWidth; // 最大幅400pxに設定
+        screenWidth > 480.0 ? 480.0 : screenWidth; // 最大幅480pxに設定
     final double imageHeight = imageWidth / 3.4; // アスペクト比に基づいて画像の高さを計算
 
     return Scaffold(
