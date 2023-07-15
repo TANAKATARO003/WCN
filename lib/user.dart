@@ -10,6 +10,9 @@ class User extends StatefulWidget {
 }
 
 class _UserState extends State<User> with SingleTickerProviderStateMixin {
+  // 画像のプレビュー表示のための判定
+  bool _dialogOpen = false;
+
   // タブコントローラー
   TabController? _tabController;
 
@@ -38,6 +41,10 @@ class _UserState extends State<User> with SingleTickerProviderStateMixin {
 
   // 画像を選択するメソッド
   Future<void> _pickImage() async {
+    setState(() {
+      _dialogOpen = true; // 画像プレビューの表示判定
+    });
+
     final pickedFile = await ImagePicker().getImage(
         source: ImageSource.gallery,
         maxWidth: 1920,
@@ -271,86 +278,138 @@ class _UserState extends State<User> with SingleTickerProviderStateMixin {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          content: SingleChildScrollView(
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (_image != null) Image.file(_image!),
-                  TextButton.icon(
-                    onPressed: _pickImage,
-                    icon: Icon(Icons.image),
-                    label: Text('画像を追加'),
-                  ),
-                  TextFormField(
-                    controller: _titleController,
-                    decoration: InputDecoration(labelText: '記事タイトル'),
-                    maxLength: 40,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'タイトルを入力してください';
-                      }
-                      return null;
-                    },
-                  ),
-                  TextFormField(
-                    controller: _contentController,
-                    decoration: InputDecoration(labelText: '内容'),
-                    maxLength: 400,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return '内容を入力してください';
-                      }
-                      return null;
-                    },
-                  ),
-                  DropdownButtonFormField(
-                    value: _selectedAttribute,
-                    items: [
-                      DropdownMenuItem(
-                        child: Text("イベント"),
-                        value: "イベント",
+        return StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+          return AlertDialog(
+            content: SingleChildScrollView(
+              child: Form(
+                key: _formKey,
+                child: Container(
+                  width: MediaQuery.of(context).size.width - 20.0,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        // 使い方の説明
+                        'ユーザー投稿の送信',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                      DropdownMenuItem(
-                        child: Text("調査/投票"),
-                        value: "調査/投票",
+                      SizedBox(height: 10),
+                      Text(
+                        'イベントや課外活動における告知/募集、調査/アンケートの募集、大学での制作物の紹介など、様々な物に関して記事を作成して投稿できます。',
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: Colors.black,
+                        ),
+                        textAlign: TextAlign.left,
                       ),
-                      DropdownMenuItem(
-                        child: Text("学作紹介"),
-                        value: "学作紹介",
+
+                      SizedBox(height: 20), // 説明と画像選択フィールドの間のスペース
+
+                      if (_image != null) Image.file(_image!),
+                      TextButton.icon(
+                        onPressed: () async {
+                          await _pickImage();
+                          setState(() {});
+                        },
+                        icon: Icon(
+                          Icons.image,
+                          color: Color(0xffed6102), // アイコンの色を設定
+                        ),
+                        label: Text(
+                          '画像を追加（最大サイズ: 2MB）',
+                          style: TextStyle(
+                            color: Color(0xffed6102), // ボタンのテキスト色を設定
+                          ),
+                        ),
                       ),
-                      DropdownMenuItem(
-                        child: Text("課外活動"),
-                        value: "課外活動",
+                      TextFormField(
+                        controller: _titleController,
+                        decoration: InputDecoration(labelText: '記事タイトル'),
+                        maxLength: 40,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'タイトルを入力してください';
+                          }
+                          return null;
+                        },
+                      ),
+                      TextFormField(
+                        controller: _contentController,
+                        decoration: InputDecoration(labelText: '内容'),
+                        maxLength: 400,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return '内容を入力してください';
+                          }
+                          return null;
+                        },
+                      ),
+                      DropdownButtonFormField(
+                        value: _selectedAttribute,
+                        items: [
+                          DropdownMenuItem(
+                            child: Text("イベント"),
+                            value: "イベント",
+                          ),
+                          DropdownMenuItem(
+                            child: Text("調査/投票"),
+                            value: "調査/投票",
+                          ),
+                          DropdownMenuItem(
+                            child: Text("学作紹介"),
+                            value: "学作紹介",
+                          ),
+                          DropdownMenuItem(
+                            child: Text("課外活動"),
+                            value: "課外活動",
+                          ),
+                        ],
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedAttribute = value as String?;
+                          });
+                        },
+                        decoration: InputDecoration(labelText: '記事属性'),
+                        validator: (value) {
+                          if (value == null) {
+                            return '属性を選択してください';
+                          }
+                          return null;
+                        },
+                      ),
+
+                      // 記事属性とボタンの間のスペース
+                      SizedBox(height: 20.0),
+
+                      ElevatedButton(
+                        onPressed: () {
+                          _submitPost();
+                          _dialogOpen = false; // 画像のプレビューの判定
+                          Navigator.of(context).pop();
+                        },
+                        child: Text(
+                          '投稿する',
+                          style: TextStyle(
+                            color: Colors.white, // ボタンのテキスト色を設定
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xffed6102), // ボタンの背景色を設定
+                        ),
                       ),
                     ],
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedAttribute = value as String?;
-                      });
-                    },
-                    decoration: InputDecoration(labelText: '記事属性'),
-                    validator: (value) {
-                      if (value == null) {
-                        return '属性を選択してください';
-                      }
-                      return null;
-                    },
                   ),
-                  ElevatedButton(
-                    onPressed: () {
-                      _submitPost();
-                      Navigator.of(context).pop();
-                    },
-                    child: Text('投稿する'),
-                  ),
-                ],
+                ),
               ),
             ),
-          ),
-        );
+          );
+        });
       },
     );
   }

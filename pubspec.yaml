@@ -29,12 +29,7 @@ dev_dependencies:  # 開発時に依存するパッケージ
 flutter:  # Flutterの設定
   uses-material-design: true  # Material Iconsを使用する設定
   assets:  # アプリケーションのアセット（画像やフォントなど）
-    - assets/logo.png
-    - assets/image1.png
-    - assets/image2.png
-    - assets/image3.png
-    - assets/image4.png
-    - assets/image5.png
+    - assets/
   fonts:  # アプリケーションのフォント
     - family: TabLogo
       fonts:
