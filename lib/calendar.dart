@@ -18,7 +18,10 @@ class _CalendarState extends State<Calendar>
   final _maininstructorController = TextEditingController();
 
   // 開講科目名候補のリスト
-  final coursepredicts = ValueNotifier<List<SyllabusScrapingdata>>([]);
+  final coursePredicts = ValueNotifier<List<SyllabusScrapingdata>>([]);
+
+  // 選択された開講科目を追跡するための ValueNotifier
+  final selectedCourse = ValueNotifier<SyllabusScrapingdata?>(null);
 
   @override
   void initState() {
@@ -234,7 +237,7 @@ class _CalendarState extends State<Calendar>
       context: context,
       builder: (BuildContext context) {
         return ValueListenableBuilder(
-          valueListenable: coursepredicts,
+          valueListenable: coursePredicts,
           builder: (context, value, child) {
             return AlertDialog(
               content: Container(
@@ -279,7 +282,7 @@ class _CalendarState extends State<Calendar>
                         if (text.isNotEmpty ||
                             _maininstructorController.text.isNotEmpty) {
                           // 開講科目名と主担当教員の両方を考慮した検索を行う
-                          coursepredicts.value = syllabusscrapingdata
+                          coursePredicts.value = syllabusscrapingdata
                               .where((element) =>
                                   (element.course.contains(
                                           text) || // 開講科目名が検索クエリを含むか、または検索クエリが空である
@@ -313,7 +316,7 @@ class _CalendarState extends State<Calendar>
                         if (text.isNotEmpty ||
                             _courseController.text.isNotEmpty) {
                           // 開講科目名と主担当教員の両方を考慮した検索を行う
-                          coursepredicts.value = syllabusscrapingdata
+                          coursePredicts.value = syllabusscrapingdata
                               .where((element) =>
                                   (element.course.contains(_courseController
                                           .text) || // 開講科目名が検索クエリを含むか、または検索クエリが空である
@@ -336,13 +339,13 @@ class _CalendarState extends State<Calendar>
                     SizedBox(height: 10.0),
 
                     Container(
-                      height: coursepredicts.value.isEmpty
+                      height: coursePredicts.value.isEmpty
                           ? 0
                           : 40, // 入力前はリストと同じで見えないように
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          '${coursepredicts.value.length}件の候補が見つかりました。',
+                          '${coursePredicts.value.length}件の候補が見つかりました。',
                           style: TextStyle(
                             fontSize: 15,
                             color: Color(0xff0081b7), // 候補件数の文字色
@@ -353,42 +356,58 @@ class _CalendarState extends State<Calendar>
                     ),
 
                     Container(
-                      height: coursepredicts.value.isEmpty
+                      height: coursePredicts.value.isEmpty
                           ? 0
                           : 240, // 入力前はリストの幅を占有しない
                       child: Scrollbar(
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: coursepredicts.value.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            return Container(
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 5.0,
-                                  horizontal:
-                                      5.0), // テキストが2行に渡った時用の対策（リストの要素の高さを可変化）
-                              color: index % 2 == 0 // リストの行ごとの色を互い違いに
-                                  ? Colors.grey[300]
-                                  : Colors.grey[100],
-                              child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(5.0),
-                                  child: Text(
-                                    coursepredicts.value[index].course +
-                                        '（' +
-                                        coursepredicts
-                                            .value[index].semesteroffered +
-                                        ', ' +
-                                        coursepredicts.value[index].dayperiod +
-                                        ', ' +
-                                        coursepredicts
-                                            .value[index].maininstructor +
-                                        '）',
-                                    style:
-                                        TextStyle(fontSize: 15), // リスト内文字の大きさ
+                        // ValueListenableBuilder を Scrollbar の child として追加
+                        child: ValueListenableBuilder(
+                          valueListenable: selectedCourse,
+                          builder: (context, value, child) {
+                            return ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: coursePredicts.value.length,
+                              itemBuilder: (BuildContext context, int index) {
+                                return GestureDetector(
+                                  onTap: () {
+                                    selectedCourse.value = coursePredicts
+                                        .value[index]; // 選択されたアイテムを保存。これを使用して登録
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                        vertical: 2.5, horizontal: 0.0),
+                                    color: value ==
+                                            coursePredicts.value[
+                                                index] // 選択されたアイテムの場合、色を変更
+                                        ? Colors.blue[100]
+                                        : index % 2 == 0
+                                            ? Colors.grey[200]
+                                            : Colors.grey[50], // リストの色を互い違いに
+                                    child: ListTile(
+                                      title: Text(
+                                        coursePredicts.value[index].course +
+                                            '（' +
+                                            coursePredicts
+                                                .value[index].semesteroffered +
+                                            ', ' +
+                                            coursePredicts
+                                                .value[index].dayperiod +
+                                            ', ' +
+                                            coursePredicts
+                                                .value[index].maininstructor +
+                                            '）',
+                                        style: TextStyle(fontSize: 15),
+                                      ),
+                                      trailing: value ==
+                                              coursePredicts.value[
+                                                  index] // 選択されたアイテムの場合、アイコンを表示
+                                          ? Icon(Icons.check_circle,
+                                              color: Colors.green)
+                                          : null, // 選択した時のチェックマーク
+                                    ),
                                   ),
-                                ),
-                              ),
+                                );
+                              },
                             );
                           },
                         ),
