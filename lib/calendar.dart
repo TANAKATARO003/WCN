@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:home/main.dart';
 import 'package:home/syllabus_scrapingdata.dart';
+import 'package:home/userdata.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:holiday_jp/holiday_jp.dart' as holiday_jp;
 
@@ -23,10 +24,12 @@ class _CalendarState extends State<Calendar>
   // 選択された開講科目を追跡するための ValueNotifier
   final selectedCourse = ValueNotifier<SyllabusScrapingdata?>(null);
 
+  UserData? userdata;
+
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 5, vsync: this);
+    _tabController = TabController(length: 14, vsync: this);
   }
 
   @override
@@ -89,12 +92,12 @@ class _CalendarState extends State<Calendar>
               indicatorColor: Color(0xffed6102),
               indicatorSize: TabBarIndicatorSize.tab,
               indicatorWeight: 3.0,
-              isScrollable: false,
+              isScrollable: true,
               labelColor: Colors.black,
               unselectedLabelColor: Color(0xff808080),
               labelPadding: EdgeInsets.all(0),
               tabs: List<Widget>.generate(
-                5,
+                14,
                 (index) {
                   final date = DateTime.now().add(Duration(days: index));
                   final weekdayInJapaneseShort =

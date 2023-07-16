@@ -19,6 +19,7 @@ dependencies:  # アプリケーションが依存するパッケージ
   firebase_storage: ^11.2.3  # Firebase Storage（Firebaseのストレージ）
   url_launcher: ^6.1.12 # Url_Launcher （アプリ内でブラウザを開く）
   holiday_jp: ^0.0.8 # 日本の祝日
+  shared_preferences: ^2.2.0 # ログイン状態の永続化
 
 dev_dependencies:  # 開発時に依存するパッケージ
   flutter_test:  # Flutterのテストフレームワーク
