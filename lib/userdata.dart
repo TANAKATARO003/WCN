@@ -4,7 +4,7 @@ import 'package:home/syllabus_scrapingdata.dart';
 class UserData {
   final String faculty;
   final String year;
-  final Map<int, List<SyllabusScrapingdata>> coursestaken;
+  final Map<String, List<SyllabusScrapingdata>> coursestaken;
   final DocumentReference reference;
   UserData(this.faculty, this.year, this.coursestaken, this.reference);
   factory UserData.fromfirestore(DocumentSnapshot ds) {

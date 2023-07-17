@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,6 +8,8 @@ import 'package:home/gakunennreki_data.dart';
 import 'package:home/login.dart';
 import 'package:home/signup.dart';
 import 'package:home/syllabus_scrapingdata.dart';
+
+import 'home.dart';
 // import 'package:your_package_name/SignUpPage.dart'; // SignUpPageのパスを正しく設定してください
 
 Future<List<SyllabusScrapingdata>> loadscrapingdata() async {
@@ -44,14 +47,14 @@ Future<List<GakunennrekiData>> loadgakunennrekidata() async {
       final dayofweek = q1.substring(0, 1);
       final numberoftimes = int.parse(q1.substring(1, q1.length));
       gakunennrekidata
-          .add(GakunennrekiData(date, '1Q', dayofweek, numberoftimes));
+          .add(GakunennrekiData(date, '第1クォーター', dayofweek, numberoftimes));
     }
     final q2 = splitelement[4];
     if (q2.isNotEmpty) {
       final dayofweek = q2.substring(0, 1);
       final numberoftimes = int.parse(q2.substring(1, q2.length));
       gakunennrekidata
-          .add(GakunennrekiData(date, '2Q', dayofweek, numberoftimes));
+          .add(GakunennrekiData(date, '第2クォーター', dayofweek, numberoftimes));
     }
     final former = splitelement[5];
     if (former.isNotEmpty) {
@@ -65,14 +68,14 @@ Future<List<GakunennrekiData>> loadgakunennrekidata() async {
       final dayofweek = q3.substring(0, 1);
       final numberoftimes = int.parse(q3.substring(1, q3.length));
       gakunennrekidata
-          .add(GakunennrekiData(date, '3Q', dayofweek, numberoftimes));
+          .add(GakunennrekiData(date, '第3クォーター', dayofweek, numberoftimes));
     }
     final q4 = splitelement[7];
     if (q4.isNotEmpty) {
       final dayofweek = q4.substring(0, 1);
       final numberoftimes = int.parse(q4.substring(1, q4.length));
       gakunennrekidata
-          .add(GakunennrekiData(date, '4Q', dayofweek, numberoftimes));
+          .add(GakunennrekiData(date, '第4クォーター', dayofweek, numberoftimes));
     }
     final latter = splitelement[8];
     if (latter.isNotEmpty) {
@@ -104,7 +107,9 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Zen_Kaku_Gothic_New',
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: SignUpPage(),
+      home: FirebaseAuth.instance.currentUser == null
+          ? SignUpPage()
+          : BottomTabPage(),
       routes: <String, WidgetBuilder>{
         "/Login": (BuildContext context) => LoginPage(),
         // "/SignUp": (BuildContext context) => SignUpPage(),  // SignUpPageのクラスが作成されていればコメントを外してください

@@ -1,22 +1,29 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:home/main.dart';
 import 'package:home/syllabus_scrapingdata.dart';
 import 'package:home/userdata.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:holiday_jp/holiday_jp.dart' as holiday_jp;
+import 'package:flutter_svg/flutter_svg.dart';
 
 class Calendar extends StatefulWidget {
+  const Calendar({super.key});
+
   @override
   _CalendarState createState() => _CalendarState();
 }
 
+bool _isAnnouncementVisible = true; // この変数でお知らせセクションの表示状態を管理
+
 class _CalendarState extends State<Calendar>
     with SingleTickerProviderStateMixin {
-  TabController? _tabController;
+  late final TabController _tabController;
 
   // 重要なお知らせセクションの表示と非表示
-  bool _isAnnouncementVisible = true; // この変数でお知らせセクションの表示状態を管理
-
   void _toggleAnnouncement() {
     setState(() {
       _isAnnouncementVisible = !_isAnnouncementVisible;
@@ -34,17 +41,34 @@ class _CalendarState extends State<Calendar>
   final selectedCourse = ValueNotifier<SyllabusScrapingdata?>(null);
 
   UserData? userdata;
+  StreamSubscription? subuser;
+  void subscribeuserdata() {
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+    subuser = FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .snapshots()
+        .listen((event) {
+      userdata = UserData.fromfirestore(event);
+      setState(() {});
+    });
+  }
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 14, vsync: this);
+    _tabController.addListener(() {
+      setState(() {});
+    });
+    subscribeuserdata();
   }
 
   @override
   void dispose() {
     _tabController?.dispose();
     super.dispose();
+    subuser?.cancel();
   }
 
   String getWeekdayInJapaneseShort(int weekday) {
@@ -156,100 +180,319 @@ class _CalendarState extends State<Calendar>
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-            // 重要なお知らせセクション
-            if (_isAnnouncementVisible)
-              Container(
-                color: Color(0xFFFFFFFF),
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Color(0xffed6102),
-                            borderRadius: BorderRadius.circular(100.0),
-                          ),
-                          padding: EdgeInsets.fromLTRB(10.0, 2.5, 10.0, 5.0),
-                          child: Text(
-                            '重要なお知らせ',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
+      body: Builder(builder: (context) {
+        final index = _tabController.index;
+        final date = DateTime.now().add(Duration(days: index));
+        final weekdayInJapaneseShort = getWeekdayInJapaneseShort(date.weekday);
+        final monthDay = "${date.month}/${date.day}";
+
+        final todayschedule = <SyllabusScrapingdata>[];
+        final classsessionnumber = gakunennrekidata
+            .where((element) => DateUtils.isSameDay(date, element.date))
+            .toList();
+        for (final classsessionnumberone in classsessionnumber) {
+          todayschedule.addAll(userdata?.coursestaken['2023']?.where(
+                (element) =>
+                    classsessionnumberone.semesteroffered ==
+                        element.semesteroffered &&
+                    classsessionnumberone.dayofweek == element.dayofweek &&
+                    classsessionnumberone.numberoftimes <=
+                        element.numberoftimesint,
+              ) ??
+              []);
+        }
+        // syllabus_scrapingdata.dartのperiodという何時間目の授業なのかのゲッターでソート
+        todayschedule.sort((a, b) {
+          // 各授業の最小の曜日と時限を見つける
+          final aMinDay = a.dayofweeks.reduce((value, element) =>
+              value.compareTo(element) < 0 ? value : element);
+          final aMinPeriod = a.periods
+              .reduce((value, element) => value < element ? value : element);
+          final bMinDay = b.dayofweeks.reduce((value, element) =>
+              value.compareTo(element) < 0 ? value : element);
+          final bMinPeriod = b.periods
+              .reduce((value, element) => value < element ? value : element);
+
+          // 最初に曜日を比較し、その後で時限を比較する
+          final dayComparison = aMinDay.compareTo(bMinDay);
+          if (dayComparison != 0) {
+            return dayComparison;
+          } else {
+            return aMinPeriod.compareTo(bMinPeriod);
+          }
+        });
+
+        return SingleChildScrollView(
+          child: Column(
+            children: <Widget>[
+              // 重要なお知らせセクション
+              if (_isAnnouncementVisible)
+                Container(
+                  color: Color(0xFFFFFFFF),
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Color(0xffed6102),
+                              borderRadius: BorderRadius.circular(100.0),
+                            ),
+                            padding: EdgeInsets.fromLTRB(10.0, 2.5, 10.0, 5.0),
+                            child: Text(
+                              '重要なお知らせ',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                           ),
-                        ),
-                        // 修正後のアイコンボタン
-                        IconButton(
-                          padding: EdgeInsets.zero, // 追加: パディングをゼロに設定
-                          constraints:
-                              const BoxConstraints(), // デフォルトで設定されているBoxConstrainsを0にする（最重要）
-                          icon: Icon(Icons.cancel),
-                          iconSize: 29,
-                          onPressed: _toggleAnnouncement,
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 4.0), // スペース確保
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                '授業の休講・掲示情報は',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              Row(
-                                // 2つのテキストを左右揃えでそれぞれ表示
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                    '教育サポートシステムでご確認ください。',
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.w500,
-                                    ),
+                          // 修正後のアイコンボタン
+                          IconButton(
+                            padding: EdgeInsets.zero, // 追加: パディングをゼロに設定
+                            constraints:
+                                const BoxConstraints(), // デフォルトで設定されているBoxConstrainsを0にする（最重要）
+                            icon: Icon(Icons.cancel),
+                            iconSize: 29,
+                            onPressed: _toggleAnnouncement,
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 4.0), // スペース確保
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text(
+                                  '授業の休講・掲示情報は',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w500,
                                   ),
-                                  GestureDetector(
-                                    onTap: _launchURL,
-                                    child: Text(
-                                      '開く',
+                                ),
+                                Row(
+                                  // 2つのテキストを左右揃えでそれぞれ表示
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: <Widget>[
+                                    Text(
+                                      '教育サポートシステムでご確認ください。',
                                       style: TextStyle(
                                         fontSize: 13,
                                         color: Colors.black,
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
+                                    GestureDetector(
+                                      onTap: _launchURL,
+                                      child: Text(
+                                        '開く',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              SizedBox(height: 15), // 履修科目という文字とタブバーの間のスペース
+              Container(
+                margin: EdgeInsets.only(left: 20),
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: Text(
+                    '履修科目',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 5), // 登録した履修科目カードとタブバーの間のスペース
+              // 履修科目の記事カード
+              Column(
+                children: todayschedule.map(
+                  (e) {
+                    String timeText = '';
+                    String periodText = e.dayperiod.substring(1, 2);
+                    String startTimeText = '';
+                    String endTimeText = '';
+
+                    switch (periodText) {
+                      case '1':
+                        timeText = '１限';
+                        startTimeText = '9:10';
+                        endTimeText = '10:50';
+                        break;
+                      case '2':
+                        timeText = '２限';
+                        startTimeText = '10:50';
+                        endTimeText = '12:20';
+                        break;
+                      case '3':
+                        timeText = '３限';
+                        startTimeText = '13:10';
+                        endTimeText = '14:40';
+                        break;
+                      case '4':
+                        timeText = '４限';
+                        startTimeText = '14:50';
+                        endTimeText = '16:20';
+                        break;
+                      case '5':
+                        timeText = '５限';
+                        startTimeText = '16:30';
+                        endTimeText = '18:00';
+                        break;
+                      case '6':
+                        timeText = '６限';
+                        startTimeText = '18:10';
+                        endTimeText = '19:40';
+                        break;
+                      default:
+                        timeText = '';
+                        startTimeText = '';
+                        endTimeText = '';
+                        break;
+                    }
+
+                    String classroomText = e.classroom.length > 12
+                        ? '${e.classroom.substring(0, 12)}...'
+                        : e.classroom;
+
+                    return Container(
+                      width: double.infinity,
+                      height: 100,
+                      margin: EdgeInsets.symmetric(vertical: 1, horizontal: 20),
+                      child: Card(
+                        shadowColor: Colors.grey.withOpacity(0.5),
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15.0),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 15, horizontal: 15),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.baseline,
+                                textBaseline:
+                                    TextBaseline.alphabetic, // これで欧文ベースラインを実現
+                                children: [
+                                  Text(
+                                    timeText,
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xffed6102),
+                                    ),
+                                  ),
+                                  SizedBox(width: 10),
+                                  Text(
+                                    '$startTimeText',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  Text(
+                                    ' - ',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  Text(
+                                    '$endTimeText',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  Spacer(),
+                                  Text(
+                                    classroomText,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: Color(0xFF808080),
+                                    ),
                                   ),
                                 ],
+                              ),
+                              SizedBox(height: 10),
+                              // 科目名とsvgアイコン。カードからはみ出ないように判定している
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: LayoutBuilder(
+                                  builder: (BuildContext context,
+                                      BoxConstraints constraints) {
+                                    final maxWidthForText =
+                                        constraints.maxWidth -
+                                            16.0 -
+                                            7.5; // SVGの幅と間隔を引きます
+
+                                    return Row(
+                                      children: [
+                                        SvgPicture.asset(
+                                          e.courseofferedby == '共通'
+                                              ? 'assets/com.svg'
+                                              : 'assets/other.svg',
+                                          width: 16.0,
+                                          height: 16.0,
+                                        ),
+                                        SizedBox(width: 7.5),
+                                        ConstrainedBox(
+                                          constraints: BoxConstraints(
+                                            maxWidth: maxWidthForText,
+                                          ),
+                                          child: Text(
+                                            e.course,
+                                            overflow: TextOverflow
+                                                .ellipsis, // テキストが長すぎて表示できない場合、末尾に...を表示します
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
                               ),
                             ],
                           ),
                         ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            // 他のウィジェットをここに追加できます
-          ],
-        ),
-      ),
+                      ),
+                    );
+                  },
+                ).toList(),
+              )
+            ],
+          ),
+        );
+      }),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddPostDialog(context),
         child: Icon(Icons.add),
@@ -445,7 +688,20 @@ class _CalendarState extends State<Calendar>
                     SizedBox(height: 20.0),
 
                     ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        final course = selectedCourse.value;
+                        if (course == null) {
+                          return;
+                        }
+                        final syllabuslist = userdata?.coursestaken['2023'];
+                        if (syllabuslist == null) {
+                          userdata?.coursestaken['2023'] = [course];
+                        } else {
+                          userdata?.coursestaken['2023']!.add(course);
+                        }
+                        userdata?.reference.update(userdata!.tomap());
+                        Navigator.pop(context);
+                      },
                       child: Text(
                         '登録する',
                         style: TextStyle(

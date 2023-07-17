@@ -19,7 +19,7 @@ class _BottomTabPageState extends State<BottomTabPage> {
   int _currentIndex = 0;
   final _pageWidgets = [
     Home(),
-    Calendar(),
+    const Calendar(),
     User(),
     Topic(),
     Service(),
@@ -32,16 +32,21 @@ class _BottomTabPageState extends State<BottomTabPage> {
       bottomNavigationBar: BottomNavigationBar(
         selectedFontSize: 11, // 下タブのフォントサイズ（選択して大きくなった時）
         unselectedFontSize: 10, // 下タブのフォントサイズ（非選択時）
-        selectedLabelStyle: TextStyle(fontWeight: FontWeight.bold), // 選択されたタブのフォントを太く設定
+        selectedLabelStyle:
+            const TextStyle(fontWeight: FontWeight.bold), // 選択されたタブのフォントを太く設定
         items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(TabLogo.home), label: 'ホーム'),
-          BottomNavigationBarItem(icon: Icon(TabLogo.calendar), label: 'カレンダー'),
-          BottomNavigationBarItem(icon: Icon(TabLogo.user), label: 'ユーザー投稿'),
-          BottomNavigationBarItem(icon: Icon(TabLogo.topic), label: 'トピック'),
-          BottomNavigationBarItem(icon: Icon(TabLogo.service), label: 'サービス'),
+          const BottomNavigationBarItem(icon: Icon(TabLogo.home), label: 'ホーム'),
+          const BottomNavigationBarItem(
+              icon: Icon(TabLogo.calendar), label: 'カレンダー'),
+          const BottomNavigationBarItem(
+              icon: Icon(TabLogo.user), label: 'ユーザー投稿'),
+          const BottomNavigationBarItem(
+              icon: Icon(TabLogo.topic), label: 'トピック'),
+          const BottomNavigationBarItem(
+              icon: Icon(TabLogo.service), label: 'サービス'),
         ],
         currentIndex: _currentIndex,
-        fixedColor: Color(0xFFED6102), // 下タブの色を「#ed6102」に指定
+        fixedColor: const Color(0xFFED6102), // 下タブの色を「#ed6102」に指定
         onTap: _onItemTapped,
         type: BottomNavigationBarType.fixed,
       ),
