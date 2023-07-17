@@ -14,6 +14,15 @@ class _CalendarState extends State<Calendar>
     with SingleTickerProviderStateMixin {
   TabController? _tabController;
 
+  // 重要なお知らせセクションの表示と非表示
+  bool _isAnnouncementVisible = true; // この変数でお知らせセクションの表示状態を管理
+
+  void _toggleAnnouncement() {
+    setState(() {
+      _isAnnouncementVisible = !_isAnnouncementVisible;
+    });
+  }
+
   // 開講科目名と主担当教員のコントローラー
   final _courseController = TextEditingController();
   final _maininstructorController = TextEditingController();
@@ -148,34 +157,46 @@ class _CalendarState extends State<Calendar>
         ),
       ),
       body: SingleChildScrollView(
-        // <-- SingleChildScrollViewを追加します
         child: Column(
           children: <Widget>[
             // 重要なお知らせセクション
-            GestureDetector(
-              onTap: _launchURL,
-              child: Container(
+            if (_isAnnouncementVisible)
+              Container(
                 color: Color(0xFFFFFFFF),
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Color(0xffed6102),
-                        borderRadius: BorderRadius.circular(100.0),
-                      ),
-                      padding: EdgeInsets.fromLTRB(10.0, 2.5, 10.0, 5.0),
-                      child: Text(
-                        '重要なお知らせ',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Color(0xffed6102),
+                            borderRadius: BorderRadius.circular(100.0),
+                          ),
+                          padding: EdgeInsets.fromLTRB(10.0, 2.5, 10.0, 5.0),
+                          child: Text(
+                            '重要なお知らせ',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
                         ),
-                      ),
+                        // 修正後のアイコンボタン
+                        IconButton(
+                          padding: EdgeInsets.zero, // 追加: パディングをゼロに設定
+                          constraints:
+                              const BoxConstraints(), // デフォルトで設定されているBoxConstrainsを0にする（最重要）
+                          icon: Icon(Icons.cancel),
+                          iconSize: 29,
+                          onPressed: _toggleAnnouncement,
+                        ),
+                      ],
                     ),
-                    SizedBox(height: 4),
+                    SizedBox(height: 4.0), // スペース確保
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
@@ -191,29 +212,33 @@ class _CalendarState extends State<Calendar>
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
-                              Text(
-                                '教育サポートシステムでご確認ください。',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                              Row(
+                                // 2つのテキストを左右揃えでそれぞれ表示
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  Text(
+                                    '教育サポートシステムでご確認ください。',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  GestureDetector(
+                                    onTap: _launchURL,
+                                    child: Text(
+                                      '開く',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
-                          ),
-                        ),
-                        Align(
-                          alignment: Alignment.center,
-                          child: GestureDetector(
-                            onTap: _launchURL,
-                            child: Text(
-                              '開く',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
                           ),
                         ),
                       ],
@@ -221,7 +246,6 @@ class _CalendarState extends State<Calendar>
                   ],
                 ),
               ),
-            ),
             // 他のウィジェットをここに追加できます
           ],
         ),
