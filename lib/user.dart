@@ -9,6 +9,97 @@ class User extends StatefulWidget {
   _UserState createState() => _UserState();
 }
 
+// 記事カードをタップしたら記事ページを開く
+class PostDetailPage extends StatelessWidget {
+  final DocumentSnapshot post;
+
+  PostDetailPage({required this.post});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            // 戻るボタンの実装
+            icon: Icon(Icons.arrow_back_ios, color: Colors.black), // ここで色を黒に指定
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          title: Text(
+            "記事の詳細",
+            style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.black), // タイトルのスタイル設定
+          ),
+          shadowColor: Colors.grey.withOpacity(0.5), // 影の色と透明度を設定
+          backgroundColor: Colors.white, // AppBarの背景色を設定
+          elevation: 1.5, // AppBarの影の高さを「1.5」に設定
+          centerTitle: true, // タイトルを中央に配置
+        ),
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              Container(
+                width: MediaQuery.of(context).size.width > 480
+                    ? 480
+                    : MediaQuery.of(context).size.width,
+                height: 320,
+                child: Image.network(
+                  post['imageUrl'],
+                  fit: BoxFit.cover,
+                  alignment: Alignment.center,
+                ),
+              ),
+              // ここから内容
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 20.0), // 横方向に10pxのパディングを設定
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start, // 子要素を左揃えに設定
+                  children: [
+                    SizedBox(height: 20), // 縦に20px間隔を空ける
+                    Container(
+                      color: Color(0xFFF0F0F0),
+                      child: Padding(
+                        padding: EdgeInsets.all(2.0),
+                        child: Text(
+                          post['attribute'],
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 13,
+                            color: Color(0xFF808080),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 20), // 縦に20px間隔を空ける
+                    Text(
+                      post['title'],
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                    ),
+                    SizedBox(height: 20), // 縦に20px間隔を空ける
+                    Text(
+                      post['content'],
+                      style: TextStyle(fontSize: 14),
+                    ),
+                    SizedBox(height: 40), // 縦に40px間隔を空ける
+                    Align(
+                      alignment: Alignment.centerRight, // 右揃えに設定
+                      child: Text(
+                        '投稿日：${(post['timestamp'] as Timestamp).toDate().toString().split(' ')[0]}',
+                        style: TextStyle(fontSize: 12),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ));
+  }
+}
+
 class _UserState extends State<User> with SingleTickerProviderStateMixin {
   // 画像のプレビュー表示のための判定
   bool _dialogOpen = false;
@@ -203,67 +294,78 @@ class _UserState extends State<User> with SingleTickerProviderStateMixin {
           itemCount: snapshot.data!.docs.length,
           itemBuilder: (context, index) {
             final post = snapshot.data!.docs[index];
-            return Card(
-              shadowColor: Colors.grey.withOpacity(0.5),
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15.0),
-              ),
-              margin: EdgeInsets.symmetric(
-                  vertical: 5, horizontal: 20), // ここで記事カードのマージンを決定
-              child: Container(
-                height: 100,
-                padding: EdgeInsets.all(5),
-                child: Row(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(15.0),
-                      child: Image.network(
-                        post['imageUrl'],
-                        width: 100,
-                        height: 100,
-                        fit: BoxFit.cover,
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PostDetailPage(post: post),
+                  ),
+                );
+              },
+              child: Card(
+                shadowColor: Colors.grey.withOpacity(0.5),
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15.0),
+                ),
+                margin: EdgeInsets.symmetric(
+                    vertical: 5, horizontal: 20), // ここで記事カードのマージンを決定
+                child: Container(
+                  height: 100,
+                  padding: EdgeInsets.all(5),
+                  child: Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(15.0),
+                        child: Image.network(
+                          post['imageUrl'],
+                          width: 100,
+                          height: 100,
+                          fit: BoxFit.cover,
+                        ),
                       ),
-                    ),
-                    SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            color: Color(0xFFF0F0F0), // 背景色を#F0F0F0に設定
-                            child: Padding(
-                              padding: EdgeInsets.all(2.0), // テキストと四角の間の余白を設定
-                              child: Text(
-                                post['attribute'],
-                                style: TextStyle(
-                                  fontWeight:
-                                      FontWeight.w500, // FontWeightをw500に変更
-                                  fontSize: 13, // フォントサイズを調整
-                                  color: Color(0xFF808080), // テキストの色を#808080に設定
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              color: Color(0xFFF0F0F0), // 背景色を#F0F0F0に設定
+                              child: Padding(
+                                padding: EdgeInsets.all(2.0), // テキストと四角の間の余白を設定
+                                child: Text(
+                                  post['attribute'],
+                                  style: TextStyle(
+                                    fontWeight:
+                                        FontWeight.w500, // FontWeightをw500に変更
+                                    fontSize: 13, // フォントサイズを調整
+                                    color:
+                                        Color(0xFF808080), // テキストの色を#808080に設定
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          SizedBox(height: 2.5), // 記事属性と記事タイトルの間の隙間
-                          Text(
-                            post['title'],
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                                fontSize: 13,
-                                fontWeight:
-                                    FontWeight.w500), // FontWeightをw500に変更
-                          ),
-                          SizedBox(height: 7.5), // 投稿日と記事タイトルの間の隙間
-                          Text(
-                            '投稿日：${(post['timestamp'] as Timestamp).toDate().toString().split(' ')[0]}',
-                            style: TextStyle(fontSize: 12),
-                          ),
-                        ],
+                            SizedBox(height: 2.5), // 記事属性と記事タイトルの間の隙間
+                            Text(
+                              post['title'],
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight:
+                                      FontWeight.w500), // FontWeightをw500に変更
+                            ),
+                            SizedBox(height: 7.5), // 投稿日と記事タイトルの間の隙間
+                            Text(
+                              '投稿日：${(post['timestamp'] as Timestamp).toDate().toString().split(' ')[0]}',
+                              style: TextStyle(fontSize: 12),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             );
@@ -339,17 +441,38 @@ class _UserState extends State<User> with SingleTickerProviderStateMixin {
                           return null;
                         },
                       ),
-                      TextFormField(
-                        controller: _contentController,
-                        decoration: InputDecoration(labelText: '内容'),
-                        maxLength: 400,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return '内容を入力してください';
-                          }
-                          return null;
-                        },
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            '内容',
+                            style: TextStyle(
+                                fontSize: 16, color: Color(0xff666666)),
+                          ),
+                          SizedBox(height: 5),
+                          TextFormField(
+                            controller: _contentController,
+                            decoration: InputDecoration(
+                              fillColor: Colors.grey[200],
+                              filled: true,
+                              contentPadding: EdgeInsets.all(8.0),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(5.0),
+                              ),
+                            ),
+                            maxLength: 400,
+                            maxLines: 5,
+                            textInputAction: TextInputAction.done,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return '内容を入力してください';
+                              }
+                              return null;
+                            },
+                          ),
+                        ],
                       ),
+
                       DropdownButtonFormField(
                         value: _selectedAttribute,
                         items: [

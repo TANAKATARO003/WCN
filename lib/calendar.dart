@@ -331,6 +331,7 @@ class _CalendarState extends State<Calendar>
               Column(
                 children: todayschedule.isEmpty
                     ? [
+                        SizedBox(height: 40),
                         Center(
                           child: Text(
                             '本日の履修科目は登録されていません。',
@@ -395,7 +396,7 @@ class _CalendarState extends State<Calendar>
                             width: double.infinity,
                             height: 100,
                             margin: EdgeInsets.symmetric(
-                                vertical: 1, horizontal: 20),
+                                vertical: 1, horizontal: 15),
                             child: Card(
                               shadowColor: Colors.grey.withOpacity(0.5),
                               elevation: 2,
@@ -440,7 +441,7 @@ class _CalendarState extends State<Calendar>
                                         Text(
                                           '$endTimeText',
                                           style: TextStyle(
-                                            fontSize: 14,
+                                            fontSize: 16,
                                             fontWeight: FontWeight.w700,
                                           ),
                                         ),
@@ -449,8 +450,8 @@ class _CalendarState extends State<Calendar>
                                           classroomText,
                                           style: TextStyle(
                                             fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                            color: Color(0xFF808080),
+                                            fontWeight: FontWeight.w400,
+                                            color: Color(0xFF707070),
                                           ),
                                         ),
                                       ],
@@ -528,206 +529,210 @@ class _CalendarState extends State<Calendar>
               content: Container(
                 width:
                     MediaQuery.of(context).size.width - 20.0, // ポップアップウィンドウの横幅
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '履修科目の日程を登録',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 10),
-                    Text(
-                      '開講科目名と主担当教員名を入力し、検索して選択することでカレンダーに登録できます。',
-                      style: TextStyle(
-                        fontSize: 15,
-                        color: Colors.black,
-                      ),
-                      textAlign: TextAlign.left,
-                    ),
-
-                    SizedBox(height: 20), // 説明と入力フィールドの間のスペース
-
-                    TextFormField(
-                      controller: _courseController,
-                      decoration: InputDecoration(
-                        labelText: '開講科目名',
-                        labelStyle: TextStyle(
-                          // ラベルのスタイルを設定
-                          fontSize: 15.0, // フォントサイズを15に設定
-                        ),
-                      ),
-                      maxLength: 40,
-                      onChanged: (text) {
-                        // 開講科目名または主担当教員のテキストが空でない場合
-                        if (text.isNotEmpty ||
-                            _maininstructorController.text.isNotEmpty) {
-                          // 開講科目名と主担当教員の両方を考慮した検索を行う
-                          coursePredicts.value = syllabusscrapingdata
-                              .where((element) =>
-                                  (element.course.contains(
-                                          text) || // 開講科目名が検索クエリを含むか、または検索クエリが空である
-                                      text.isEmpty) &&
-                                  (element.maininstructor.contains(
-                                          _maininstructorController
-                                              .text) || // 主担当教員が検索クエリを含むか、または検索クエリが空である
-                                      _maininstructorController.text.isEmpty))
-                              .toList();
-                        }
-                      },
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return '開講科目名を入力してください';
-                        }
-                        return null;
-                      },
-                    ),
-                    TextFormField(
-                      controller: _maininstructorController,
-                      decoration: InputDecoration(
-                        labelText: '主担当教員（姓名の間は半角スペース）',
-                        labelStyle: TextStyle(
-                          // ラベルのスタイルを設定
-                          fontSize: 15.0, // フォントサイズを15に設定
-                        ),
-                      ),
-                      maxLength: 40,
-                      onChanged: (text) {
-                        // 主担当教員または開講科目名のテキストが空でない場合
-                        if (text.isNotEmpty ||
-                            _courseController.text.isNotEmpty) {
-                          // 開講科目名と主担当教員の両方を考慮した検索を行う
-                          coursePredicts.value = syllabusscrapingdata
-                              .where((element) =>
-                                  (element.course.contains(_courseController
-                                          .text) || // 開講科目名が検索クエリを含むか、または検索クエリが空である
-                                      _courseController.text.isEmpty) &&
-                                  (element.maininstructor.contains(
-                                          text) || // 主担当教員が検索クエリを含むか、または検索クエリが空である
-                                      text.isEmpty))
-                              .toList();
-                        }
-                      },
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return '主担当教員を入力してください';
-                        }
-                        return null;
-                      },
-                    ),
-
-                    // 入力フィールドと候補リストの間のスペース
-                    SizedBox(height: 10.0),
-
-                    Container(
-                      height: coursePredicts.value.isEmpty
-                          ? 0
-                          : 40, // 入力前はリストと同じで見えないように
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          '${coursePredicts.value.length}件の候補が見つかりました。',
-                          style: TextStyle(
-                            fontSize: 15,
-                            color: Color(0xff0081b7), // 候補件数の文字色
-                          ),
-                          textAlign: TextAlign.left,
-                        ),
-                      ),
-                    ),
-
-                    Container(
-                      height: coursePredicts.value.isEmpty
-                          ? 0
-                          : 240, // 入力前はリストの幅を占有しない
-                      child: Scrollbar(
-                        // ValueListenableBuilder を Scrollbar の child として追加
-                        child: ValueListenableBuilder(
-                          valueListenable: selectedCourse,
-                          builder: (context, value, child) {
-                            return ListView.builder(
-                              shrinkWrap: true,
-                              itemCount: coursePredicts.value.length,
-                              itemBuilder: (BuildContext context, int index) {
-                                return GestureDetector(
-                                  onTap: () {
-                                    selectedCourse.value = coursePredicts
-                                        .value[index]; // 選択されたアイテムを保存。これを使用して登録
-                                  },
-                                  child: Container(
-                                    padding: EdgeInsets.symmetric(
-                                        vertical: 2.5, horizontal: 0.0),
-                                    color: value ==
-                                            coursePredicts.value[
-                                                index] // 選択されたアイテムの場合、色を変更
-                                        ? Colors.blue[100]
-                                        : index % 2 == 0
-                                            ? Colors.grey[200]
-                                            : Colors.grey[50], // リストの色を互い違いに
-                                    child: ListTile(
-                                      title: Text(
-                                        coursePredicts.value[index].course +
-                                            '（' +
-                                            coursePredicts
-                                                .value[index].semesteroffered +
-                                            ', ' +
-                                            coursePredicts
-                                                .value[index].dayperiod +
-                                            ', ' +
-                                            coursePredicts
-                                                .value[index].maininstructor +
-                                            '）',
-                                        style: TextStyle(fontSize: 15),
-                                      ),
-                                      trailing: value ==
-                                              coursePredicts.value[
-                                                  index] // 選択されたアイテムの場合、アイコンを表示
-                                          ? Icon(Icons.check_circle,
-                                              color: Colors.green)
-                                          : null, // 選択した時のチェックマーク
-                                    ),
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-
-                    // 候補リストとボタンの間のスペース
-                    SizedBox(height: 20.0),
-
-                    ElevatedButton(
-                      onPressed: () {
-                        final course = selectedCourse.value;
-                        if (course == null) {
-                          return;
-                        }
-                        final syllabuslist = userdata?.coursestaken['2023'];
-                        if (syllabuslist == null) {
-                          userdata?.coursestaken['2023'] = [course];
-                        } else {
-                          userdata?.coursestaken['2023']!.add(course);
-                        }
-                        userdata?.reference.update(userdata!.tomap());
-                        Navigator.pop(context);
-                      },
-                      child: Text(
-                        '登録する',
+                // SingleChildScrollViewで囲うことによって、リストがダイアログからはみ出ない
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '履修科目の日程を登録',
                         style: TextStyle(
-                          color: Colors.white, // ボタンのテキスト色を設定
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        '開講科目名と主担当教員名を入力し、検索して選択することでカレンダーに登録できます。',
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: Colors.black,
+                        ),
+                        textAlign: TextAlign.left,
+                      ),
+
+                      SizedBox(height: 20), // 説明と入力フィールドの間のスペース
+
+                      TextFormField(
+                        controller: _courseController,
+                        decoration: InputDecoration(
+                          labelText: '開講科目名',
+                          labelStyle: TextStyle(
+                            // ラベルのスタイルを設定
+                            fontSize: 15.0, // フォントサイズを15に設定
+                          ),
+                        ),
+                        maxLength: 40,
+                        onChanged: (text) {
+                          // 開講科目名または主担当教員のテキストが空でない場合
+                          if (text.isNotEmpty ||
+                              _maininstructorController.text.isNotEmpty) {
+                            // 開講科目名と主担当教員の両方を考慮した検索を行う
+                            coursePredicts.value = syllabusscrapingdata
+                                .where((element) =>
+                                    (element.course.contains(
+                                            text) || // 開講科目名が検索クエリを含むか、または検索クエリが空である
+                                        text.isEmpty) &&
+                                    (element.maininstructor.contains(
+                                            _maininstructorController
+                                                .text) || // 主担当教員が検索クエリを含むか、または検索クエリが空である
+                                        _maininstructorController.text.isEmpty))
+                                .toList();
+                          }
+                        },
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return '開講科目名を入力してください';
+                          }
+                          return null;
+                        },
+                      ),
+                      TextFormField(
+                        controller: _maininstructorController,
+                        decoration: InputDecoration(
+                          labelText: '主担当教員名　※姓名間は半角スペース',
+                          labelStyle: TextStyle(
+                            // ラベルのスタイルを設定
+                            fontSize: 15.0, // フォントサイズを15に設定
+                          ),
+                        ),
+                        maxLength: 40,
+                        onChanged: (text) {
+                          // 主担当教員または開講科目名のテキストが空でない場合
+                          if (text.isNotEmpty ||
+                              _courseController.text.isNotEmpty) {
+                            // 開講科目名と主担当教員の両方を考慮した検索を行う
+                            coursePredicts.value = syllabusscrapingdata
+                                .where((element) =>
+                                    (element.course.contains(_courseController
+                                            .text) || // 開講科目名が検索クエリを含むか、または検索クエリが空である
+                                        _courseController.text.isEmpty) &&
+                                    (element.maininstructor.contains(
+                                            text) || // 主担当教員が検索クエリを含むか、または検索クエリが空である
+                                        text.isEmpty))
+                                .toList();
+                          }
+                        },
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return '主担当教員名を入力してください';
+                          }
+                          return null;
+                        },
+                      ),
+
+                      // 入力フィールドと候補リストの間のスペース
+                      SizedBox(height: 10.0),
+
+                      Container(
+                        height: coursePredicts.value.isEmpty
+                            ? 0
+                            : 40, // 入力前はリストと同じで見えないように
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            '${coursePredicts.value.length}件の候補が見つかりました。',
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Color(0xff0081b7), // 候補件数の文字色
+                            ),
+                            textAlign: TextAlign.left,
+                          ),
                         ),
                       ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xffed6102), // ボタンの背景色を設定
+
+                      Container(
+                        height: coursePredicts.value.isEmpty
+                            ? 0
+                            : 240, // 入力前はリストの幅を占有しない
+                        child: Scrollbar(
+                          // ValueListenableBuilder を Scrollbar の child として追加
+                          child: ValueListenableBuilder(
+                            valueListenable: selectedCourse,
+                            builder: (context, value, child) {
+                              return ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: coursePredicts.value.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  return GestureDetector(
+                                    onTap: () {
+                                      selectedCourse.value =
+                                          coursePredicts.value[
+                                              index]; // 選択されたアイテムを保存。これを使用して登録
+                                    },
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: 2.5, horizontal: 0.0),
+                                      color: value ==
+                                              coursePredicts.value[
+                                                  index] // 選択されたアイテムの場合、色を変更
+                                          ? Colors.blue[100]
+                                          : index % 2 == 0
+                                              ? Colors.grey[200]
+                                              : Colors.grey[50], // リストの色を互い違いに
+                                      child: ListTile(
+                                        title: Text(
+                                          coursePredicts.value[index].course +
+                                              '（' +
+                                              coursePredicts.value[index]
+                                                  .semesteroffered +
+                                              ', ' +
+                                              coursePredicts
+                                                  .value[index].dayperiod +
+                                              ', ' +
+                                              coursePredicts
+                                                  .value[index].maininstructor +
+                                              '）',
+                                          style: TextStyle(fontSize: 15),
+                                        ),
+                                        trailing: value ==
+                                                coursePredicts.value[
+                                                    index] // 選択されたアイテムの場合、アイコンを表示
+                                            ? Icon(Icons.check_circle,
+                                                color: Colors.green)
+                                            : null, // 選択した時のチェックマーク
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
+
+                      // 候補リストとボタンの間のスペース
+                      SizedBox(height: 20.0),
+
+                      ElevatedButton(
+                        onPressed: () {
+                          final course = selectedCourse.value;
+                          if (course == null) {
+                            return;
+                          }
+                          final syllabuslist = userdata?.coursestaken['2023'];
+                          if (syllabuslist == null) {
+                            userdata?.coursestaken['2023'] = [course];
+                          } else {
+                            userdata?.coursestaken['2023']!.add(course);
+                          }
+                          userdata?.reference.update(userdata!.tomap());
+                          Navigator.pop(context);
+                        },
+                        child: Text(
+                          '登録する',
+                          style: TextStyle(
+                            color: Colors.white, // ボタンのテキスト色を設定
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xffed6102), // ボタンの背景色を設定
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );
