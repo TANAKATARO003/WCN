@@ -21,6 +21,8 @@ dependencies:  # アプリケーションが依存するパッケージ
   holiday_jp: ^0.0.8 # 日本の祝日
   shared_preferences: ^2.2.0 # ログイン状態の永続化
   flutter_svg: ^2.0.7 # svgをアイコンとして利用する
+  http: ^1.1.0 #スクレイピング用
+  html: ^0.15.4 #スクレイピング用
 
 dev_dependencies:  # 開発時に依存するパッケージ
   flutter_test:  # Flutterのテストフレームワーク
