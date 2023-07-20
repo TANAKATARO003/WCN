@@ -83,12 +83,7 @@ class _TopicState extends State<Topic> with SingleTickerProviderStateMixin {
       ),
       body: Center(
         child: Column(
-          children: [
-            Text(
-              "topic",
-              style: TextStyle(fontSize: 20), // テキストのスタイルを設定
-            ),
-          ],
+          children: [],
         ),
       ),
     );
