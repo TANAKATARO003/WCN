@@ -33,6 +33,10 @@ class SyllabusScrapingdata {
   // 元から用意していたゲッター
   String get dayofweek => dayperiod.substring(0, 1);
   int get period => int.parse(dayperiod.substring(1, 2));
+  String? get dayofweek2 =>
+      dayperiod.length > 2 ? dayperiod.substring(2, 3) : null;
+  String? get period2 =>
+      dayperiod.length > 2 ? dayperiod.substring(3, 4) : null;
   int get periodoftime => int.parse(dayperiod.substring(1, dayperiod.length));
   int get numberoftimesint => int.parse(numberoftimes);
 

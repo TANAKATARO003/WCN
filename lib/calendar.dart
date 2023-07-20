@@ -195,7 +195,9 @@ class _CalendarState extends State<Calendar>
                 (element) =>
                     classsessionnumberone.semesteroffered ==
                         element.semesteroffered &&
-                    classsessionnumberone.dayofweek == element.dayofweek &&
+                    (classsessionnumberone.dayofweek == element.dayofweek ||
+                        classsessionnumberone.dayofweek ==
+                            element.dayofweek2) &&
                     classsessionnumberone.numberoftimes <=
                         element.numberoftimesint,
               ) ??
@@ -343,164 +345,180 @@ class _CalendarState extends State<Calendar>
                           ),
                         ),
                       ]
-                    : todayschedule.map(
-                        (e) {
-                          String timeText = '';
-                          String periodText = e.dayperiod.substring(1, 2);
-                          String startTimeText = '';
-                          String endTimeText = '';
+                    : ['1', '2', '3', '4', '5', '6'].map(
+                        (p) {
+                          String todayweekday =
+                              getWeekdayInJapaneseShort(date.weekday);
+                          final schedule = todayschedule
+                              .where((schedule) => schedule.dayperiod
+                                  .contains('$todayweekday$p'))
+                              .toList();
+                          return Column(
+                            children: [
+                              ...schedule.map((e) {
+                                String timeText = '';
+                                String startTimeText = '';
+                                String endTimeText = '';
 
-                          switch (periodText) {
-                            case '1':
-                              timeText = '１限';
-                              startTimeText = '9:10';
-                              endTimeText = '10:50';
-                              break;
-                            case '2':
-                              timeText = '２限';
-                              startTimeText = '10:50';
-                              endTimeText = '12:20';
-                              break;
-                            case '3':
-                              timeText = '３限';
-                              startTimeText = '13:10';
-                              endTimeText = '14:40';
-                              break;
-                            case '4':
-                              timeText = '４限';
-                              startTimeText = '14:50';
-                              endTimeText = '16:20';
-                              break;
-                            case '5':
-                              timeText = '５限';
-                              startTimeText = '16:30';
-                              endTimeText = '18:00';
-                              break;
-                            case '6':
-                              timeText = '６限';
-                              startTimeText = '18:10';
-                              endTimeText = '19:40';
-                              break;
-                            default:
-                              timeText = '';
-                              startTimeText = '';
-                              endTimeText = '';
-                              break;
-                          }
+                                switch (p) {
+                                  case '1':
+                                    timeText = '１限';
+                                    startTimeText = '9:10';
+                                    endTimeText = '10:50';
+                                    break;
+                                  case '2':
+                                    timeText = '２限';
+                                    startTimeText = '10:50';
+                                    endTimeText = '12:20';
+                                    break;
+                                  case '3':
+                                    timeText = '３限';
+                                    startTimeText = '13:10';
+                                    endTimeText = '14:40';
+                                    break;
+                                  case '4':
+                                    timeText = '４限';
+                                    startTimeText = '14:50';
+                                    endTimeText = '16:20';
+                                    break;
+                                  case '5':
+                                    timeText = '５限';
+                                    startTimeText = '16:30';
+                                    endTimeText = '18:00';
+                                    break;
+                                  case '6':
+                                    timeText = '６限';
+                                    startTimeText = '18:10';
+                                    endTimeText = '19:40';
+                                    break;
+                                  default:
+                                    timeText = '';
+                                    startTimeText = '';
+                                    endTimeText = '';
+                                    break;
+                                }
 
-                          String classroomText = e.classroom.length > 12
-                              ? '${e.classroom.substring(0, 12)}...'
-                              : e.classroom;
+                                String classroomText = e.classroom.length > 12
+                                    ? '${e.classroom.substring(0, 12)}...'
+                                    : e.classroom;
 
-                          return Container(
-                            width: double.infinity,
-                            height: 100,
-                            margin: EdgeInsets.symmetric(
-                                vertical: 1, horizontal: 15),
-                            child: Card(
-                              shadowColor: Colors.grey.withOpacity(0.5),
-                              elevation: 2,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15.0),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 15, horizontal: 15),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.baseline,
-                                      textBaseline: TextBaseline
-                                          .alphabetic, // これで欧文ベースラインを実現
-                                      children: [
-                                        Text(
-                                          timeText,
-                                          style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w700,
-                                            color: Color(0xffed6102),
-                                          ),
-                                        ),
-                                        SizedBox(width: 10),
-                                        Text(
-                                          '$startTimeText',
-                                          style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                        ),
-                                        Text(
-                                          ' - ',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                        ),
-                                        Text(
-                                          '$endTimeText',
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                        ),
-                                        Spacer(),
-                                        Text(
-                                          classroomText,
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w400,
-                                            color: Color(0xFF707070),
-                                          ),
-                                        ),
-                                      ],
+                                return Container(
+                                  width: double.infinity,
+                                  height: 100,
+                                  margin: EdgeInsets.symmetric(
+                                      vertical: 1, horizontal: 15),
+                                  child: Card(
+                                    shadowColor: Colors.grey.withOpacity(0.5),
+                                    elevation: 2,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15.0),
                                     ),
-                                    SizedBox(height: 10),
-                                    // 科目名とsvgアイコン。カードからはみ出ないように判定している
-                                    Align(
-                                      alignment: Alignment.centerLeft,
-                                      child: LayoutBuilder(
-                                        builder: (BuildContext context,
-                                            BoxConstraints constraints) {
-                                          final maxWidthForText =
-                                              constraints.maxWidth -
-                                                  16.0 -
-                                                  7.5; // SVGの幅と間隔を引きます
-
-                                          return Row(
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 15, horizontal: 15),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.baseline,
+                                            textBaseline: TextBaseline
+                                                .alphabetic, // これで欧文ベースラインを実現
                                             children: [
-                                              SvgPicture.asset(
-                                                e.courseofferedby == '共通'
-                                                    ? 'assets/com.svg'
-                                                    : 'assets/other.svg',
-                                                width: 16.0,
-                                                height: 16.0,
-                                              ),
-                                              SizedBox(width: 7.5),
-                                              ConstrainedBox(
-                                                constraints: BoxConstraints(
-                                                  maxWidth: maxWidthForText,
+                                              Text(
+                                                timeText,
+                                                style: TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: Color(0xffed6102),
                                                 ),
-                                                child: Text(
-                                                  e.course,
-                                                  overflow: TextOverflow
-                                                      .ellipsis, // テキストが長すぎて表示できない場合、末尾に...を表示します
-                                                  style: TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.w700,
-                                                  ),
+                                              ),
+                                              SizedBox(width: 10),
+                                              Text(
+                                                '$startTimeText',
+                                                style: TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                              ),
+                                              Text(
+                                                ' - ',
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                              ),
+                                              Text(
+                                                '$endTimeText',
+                                                style: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                              ),
+                                              Spacer(),
+                                              Text(
+                                                classroomText,
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w400,
+                                                  color: Color(0xFF707070),
                                                 ),
                                               ),
                                             ],
-                                          );
-                                        },
+                                          ),
+                                          SizedBox(height: 10),
+                                          // 科目名とsvgアイコン。カードからはみ出ないように判定している
+                                          Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: LayoutBuilder(
+                                              builder: (BuildContext context,
+                                                  BoxConstraints constraints) {
+                                                final maxWidthForText =
+                                                    constraints.maxWidth -
+                                                        16.0 -
+                                                        7.5; // SVGの幅と間隔を引きます
+
+                                                return Row(
+                                                  children: [
+                                                    SvgPicture.asset(
+                                                      e.courseofferedby == '共通'
+                                                          ? 'assets/com.svg'
+                                                          : 'assets/other.svg',
+                                                      width: 16.0,
+                                                      height: 16.0,
+                                                    ),
+                                                    SizedBox(width: 7.5),
+                                                    ConstrainedBox(
+                                                      constraints:
+                                                          BoxConstraints(
+                                                        maxWidth:
+                                                            maxWidthForText,
+                                                      ),
+                                                      child: Text(
+                                                        e.course,
+                                                        overflow: TextOverflow
+                                                            .ellipsis, // テキストが長すぎて表示できない場合、末尾に...を表示します
+                                                        style: TextStyle(
+                                                          fontSize: 16,
+                                                          fontWeight:
+                                                              FontWeight.w700,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                  ],
-                                ),
-                              ),
-                            ),
+                                  ),
+                                );
+                                return SizedBox();
+                              })
+                            ],
                           );
                         },
                       ).toList(),
