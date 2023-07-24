@@ -225,6 +225,7 @@ class _CalendarState extends State<Calendar>
         });
 
         return SingleChildScrollView(
+          key: UniqueKey(),
           child: Column(
             children: <Widget>[
               // 重要なお知らせセクション
@@ -330,130 +331,142 @@ class _CalendarState extends State<Calendar>
               ),
               SizedBox(height: 5), // 登録した履修科目カードとタブバーの間のスペース
               // 履修科目の記事カード
-              GestureDetector(
-                onTap: () {
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: Text("確認"),
-                          content: Text("選択した授業の名前" + "の登録を削除しますか？"),
-                          actions: [
-                            TextButton(
-                              child: Text("はい"),
-                              onPressed: () {
-                                final course = selectedCourse.value;
-                                if (course != null) {
-                                  final syllabuslist =
-                                      userdata?.coursestaken['2023'] ?? [];
-
-                                  // タップされた授業のインデックスを特定
-                                  final indexToRemove =
-                                      syllabuslist.indexOf(course);
-
-                                  // インデックスがリスト内に存在する場合、そのインデックスの授業を削除
-                                  if (indexToRemove != -1) {
-                                    syllabuslist.removeAt(indexToRemove);
-                                  }
-
-                                  // 更新されたリストをFirestoreに保存
-                                  userdata?.reference.update({
-                                    'coursestaken.2023': syllabuslist
-                                  }).then((_) {
-                                    print("Firestore update successful");
-                                  }).catchError((error) {
-                                    print("Error updating Firestore: $error");
-                                  });
-                                }
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                            TextButton(
-                              child: Text(
-                                "いいえ",
-                                style: TextStyle(color: Colors.red),
-                              ),
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                          ],
-                        );
-                      });
-                },
-                child: Column(
-                  children: todayschedule.isEmpty
-                      ? [
-                          SizedBox(height: 40),
-                          Center(
-                            child: Text(
-                              '本日の履修科目は登録されていません。',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.black,
-                              ),
+              Column(
+                children: todayschedule.isEmpty
+                    ? [
+                        SizedBox(height: 40),
+                        Center(
+                          child: Text(
+                            '本日の履修科目は登録されていません。',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black,
                             ),
                           ),
-                        ]
-                      : ['1', '2', '3', '4', '5', '6'].map(
-                          (p) {
-                            String todayweekday =
-                                getWeekdayInJapaneseShort(date.weekday);
-                            final schedule = todayschedule
-                                .where((schedule) => schedule.dayperiod
-                                    .contains('$todayweekday$p'))
-                                .toList();
-                            return Column(
-                              children: [
-                                ...schedule.map((e) {
-                                  String timeText = '';
-                                  String startTimeText = '';
-                                  String endTimeText = '';
+                        ),
+                      ]
+                    : ['1', '2', '3', '4', '5', '6'].map(
+                        (p) {
+                          String todayweekday =
+                              getWeekdayInJapaneseShort(date.weekday);
+                          final schedule = todayschedule
+                              .where((schedule) => schedule.dayperiod
+                                  .contains('$todayweekday$p'))
+                              .toList();
+                          return Column(
+                            children: [
+                              ...schedule.map((e) {
+                                String timeText = '';
+                                String startTimeText = '';
+                                String endTimeText = '';
 
-                                  switch (p) {
-                                    case '1':
-                                      timeText = '１限';
-                                      startTimeText = '9:10';
-                                      endTimeText = '10:50';
-                                      break;
-                                    case '2':
-                                      timeText = '２限';
-                                      startTimeText = '10:50';
-                                      endTimeText = '12:20';
-                                      break;
-                                    case '3':
-                                      timeText = '３限';
-                                      startTimeText = '13:10';
-                                      endTimeText = '14:40';
-                                      break;
-                                    case '4':
-                                      timeText = '４限';
-                                      startTimeText = '14:50';
-                                      endTimeText = '16:20';
-                                      break;
-                                    case '5':
-                                      timeText = '５限';
-                                      startTimeText = '16:30';
-                                      endTimeText = '18:00';
-                                      break;
-                                    case '6':
-                                      timeText = '６限';
-                                      startTimeText = '18:10';
-                                      endTimeText = '19:40';
-                                      break;
-                                    default:
-                                      timeText = '';
-                                      startTimeText = '';
-                                      endTimeText = '';
-                                      break;
-                                  }
+                                switch (p) {
+                                  case '1':
+                                    timeText = '１限';
+                                    startTimeText = '9:10';
+                                    endTimeText = '10:50';
+                                    break;
+                                  case '2':
+                                    timeText = '２限';
+                                    startTimeText = '10:50';
+                                    endTimeText = '12:20';
+                                    break;
+                                  case '3':
+                                    timeText = '３限';
+                                    startTimeText = '13:10';
+                                    endTimeText = '14:40';
+                                    break;
+                                  case '4':
+                                    timeText = '４限';
+                                    startTimeText = '14:50';
+                                    endTimeText = '16:20';
+                                    break;
+                                  case '5':
+                                    timeText = '５限';
+                                    startTimeText = '16:30';
+                                    endTimeText = '18:00';
+                                    break;
+                                  case '6':
+                                    timeText = '６限';
+                                    startTimeText = '18:10';
+                                    endTimeText = '19:40';
+                                    break;
+                                  default:
+                                    timeText = '';
+                                    startTimeText = '';
+                                    endTimeText = '';
+                                    break;
+                                }
 
-                                  String classroomText = e.classroom.length > 12
-                                      ? '${e.classroom.substring(0, 12)}...'
-                                      : e.classroom;
+                                String classroomText = e.classroom.length > 12
+                                    ? '${e.classroom.substring(0, 12)}...'
+                                    : e.classroom;
 
-                                  return Container(
+                                return GestureDetector(
+                                  onTap: () {
+                                    showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            title: Text("確認"),
+                                            content: Text(
+                                                "選択した授業の名前" + "の登録を削除しますか？"),
+                                            actions: [
+                                              TextButton(
+                                                child: Text("はい"),
+                                                onPressed: () {
+                                                  final course = e;
+                                                  if (course != null) {
+                                                    final syllabuslist =
+                                                        userdata?.coursestaken[
+                                                                '2023'] ??
+                                                            [];
+
+                                                    // タップされた授業のインデックスを特定
+                                                    final indexToRemove =
+                                                        syllabuslist
+                                                            .indexOf(course);
+
+                                                    // インデックスがリスト内に存在する場合、そのインデックスの授業を削除
+                                                    if (indexToRemove != -1) {
+                                                      syllabuslist.removeAt(
+                                                          indexToRemove);
+                                                    }
+
+                                                    // 更新されたリストをFirestoreに保存
+                                                    userdata?.reference.update({
+                                                      'coursestaken.2023':
+                                                          syllabuslist
+                                                              .map((e) =>
+                                                                  e.tomap())
+                                                              .toList()
+                                                    }).then((_) {
+                                                      print(
+                                                          "Firestore update successful");
+                                                    }).catchError((error) {
+                                                      print(
+                                                          "Error updating Firestore: $error");
+                                                    });
+                                                  }
+                                                  Navigator.of(context).pop();
+                                                },
+                                              ),
+                                              TextButton(
+                                                child: Text(
+                                                  "いいえ",
+                                                  style: TextStyle(
+                                                      color: Colors.red),
+                                                ),
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                },
+                                              ),
+                                            ],
+                                          );
+                                        });
+                                  },
+                                  child: Container(
                                     width: double.infinity,
                                     height: 100,
                                     margin: EdgeInsets.symmetric(
@@ -569,15 +582,17 @@ class _CalendarState extends State<Calendar>
                                         ),
                                       ),
                                     ),
-                                  );
-                                  return SizedBox();
-                                })
-                              ],
-                            );
-                          },
-                        ).toList(),
-                ),
+                                  ),
+                                );
+                                return SizedBox();
+                              })
+                            ],
+                          );
+                        },
+                      ).toList(),
               ),
+              // 一番最後のカードの後ろの余白
+              SizedBox(height: 20),
             ],
           ),
         );

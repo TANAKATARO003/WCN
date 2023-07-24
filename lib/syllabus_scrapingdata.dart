@@ -8,6 +8,16 @@ class SyllabusScrapingdata {
   final String classroom;
   final String numberoftimes;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SyllabusScrapingdata &&
+          runtimeType == other.runtimeType &&
+          course == other.course;
+
+  @override
+  int get hashCode => course.hashCode;
+
   SyllabusScrapingdata(
       this.course,
       this.courseofferedby,

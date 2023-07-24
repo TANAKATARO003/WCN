@@ -291,6 +291,7 @@ class _UserState extends State<User> with SingleTickerProviderStateMixin {
         }
 
         return ListView.builder(
+          padding: EdgeInsets.only(bottom: 20), //一番最後のカードの後ろに20の余白
           itemCount: snapshot.data!.docs.length,
           itemBuilder: (context, index) {
             final post = snapshot.data!.docs[index];

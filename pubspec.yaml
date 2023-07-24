@@ -23,6 +23,8 @@ dependencies:  # アプリケーションが依存するパッケージ
   flutter_svg: ^2.0.7 # svgをアイコンとして利用する
   http: ^1.1.0 #スクレイピング用
   html: ^0.15.4 #スクレイピング用
+  flutter_rating_bar: ^4.0.1 #食堂メニューの評価
+  crypto: ^3.0.3 #メニュー名をハッシュ化して一意なドキュメントIDにするために追加
 
 dev_dependencies:  # 開発時に依存するパッケージ
   flutter_test:  # Flutterのテストフレームワーク
