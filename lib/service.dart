@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:home/facilitytime_data.dart';
+import 'package:home/main.dart';
 
 class Service extends StatefulWidget {
   @override
@@ -22,6 +24,74 @@ class _ServiceState extends State<Service> with SingleTickerProviderStateMixin {
   void dispose() {
     _tabController?.dispose();
     super.dispose();
+  }
+
+  Widget showFacilityTime(List<FacilityTimeData> facilitytimedata) {
+    // 現在の日付を取得
+    final nowdate = DateTime.now();
+
+    // 今日の施設利用可能時間を取得
+    List<FacilityTimeData> todayData = facilitytimedata
+        .where((data) =>
+            data.date.year == nowdate.year &&
+            data.date.month == nowdate.month &&
+            data.date.day == nowdate.day)
+        .toList();
+
+    // カードリストを作成
+    List<Widget> cards = [];
+
+    // 各施設ごとにカードを作成してリストに追加
+    if (todayData.isNotEmpty) {
+      if (todayData.first.library.isNotEmpty) {
+        cards.add(createFacilityCard('図書館', todayData.first.library));
+      }
+      if (todayData.first.daiiti.isNotEmpty) {
+        cards.add(createFacilityCard('第一食堂', todayData.first.daiiti));
+      }
+      if (todayData.first.genki.isNotEmpty) {
+        cards.add(createFacilityCard('GENKI食堂', todayData.first.genki));
+      }
+      if (todayData.first.takeout.isNotEmpty) {
+        cards.add(createFacilityCard('テイクアウトショップ', todayData.first.takeout));
+      }
+      if (todayData.first.syoseki.isNotEmpty) {
+        cards.add(createFacilityCard('書籍購買店', todayData.first.syoseki));
+      }
+      if (todayData.first.seikyou.isNotEmpty) {
+        cards.add(createFacilityCard('生協本部', todayData.first.seikyou));
+      }
+    }
+
+    return Column(
+      children: cards,
+    );
+  }
+
+// 施設利用可能時間を表示するカードを作成する関数
+  Widget createFacilityCard(String facilityName, String time) {
+    return Card(
+      shadowColor: Colors.grey.withOpacity(0.5),
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15.0),
+      ),
+      margin: EdgeInsets.symmetric(vertical: 5, horizontal: 20),
+      child: ListTile(
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '$facilityName: $time',
+              style: TextStyle(
+                fontWeight: FontWeight.w500, // FontWeightをw500に変更
+                fontSize: 15, // フォントサイズを調整
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -180,7 +250,7 @@ class _ServiceState extends State<Service> with SingleTickerProviderStateMixin {
                 ],
               ),
             ),
-            Container(), // '施設利用可能時間'タブのための空のコンテナ
+            showFacilityTime(facilitytimedata),
           ],
         ),
       ),

@@ -8,6 +8,7 @@ import 'package:home/gakunennreki_data.dart';
 import 'package:home/login.dart';
 import 'package:home/signup.dart';
 import 'package:home/syllabus_scrapingdata.dart';
+import 'package:home/facilitytime_data.dart';
 
 import 'home.dart';
 // import 'package:your_package_name/SignUpPage.dart'; // SignUpPageのパスを正しく設定してください
@@ -90,10 +91,43 @@ Future<List<GakunennrekiData>> loadgakunennrekidata() async {
 
 late final List<GakunennrekiData> gakunennrekidata;
 
+Future<List<FacilityTimeData>> loadfacilitytimedata() async {
+  final data = await rootBundle.loadString('assets/facilitytime.csv');
+  final classlist = data.split('\r\n');
+  final facilitytimedata = <FacilityTimeData>[];
+  for (final element in classlist) {
+    final splitelement = element.split(',');
+    final date = DateTime(int.parse(splitelement[0]),
+        int.parse(splitelement[1]), int.parse(splitelement[2]));
+    final library = splitelement[3];
+    final daiiti = splitelement[4];
+    final genki = splitelement[5];
+    final takeout = splitelement[6];
+    final syoseki = splitelement[7];
+    final seikyou = splitelement[8];
+
+    // FacilityTimeDataのインスタンスを作成してリストに追加する
+    final facilityTimeData = FacilityTimeData(
+      date,
+      library,
+      daiiti,
+      genki,
+      takeout,
+      syoseki,
+      seikyou,
+    );
+    facilitytimedata.add(facilityTimeData);
+  }
+  return facilitytimedata;
+}
+
+late final List<FacilityTimeData> facilitytimedata;
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   syllabusscrapingdata = await loadscrapingdata();
   gakunennrekidata = await loadgakunennrekidata();
+  facilitytimedata = await loadfacilitytimedata();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(MyApp());
 }
