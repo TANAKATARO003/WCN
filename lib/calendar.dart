@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -411,8 +410,18 @@ class _CalendarState extends State<Calendar>
                                           return AlertDialog(
                                             title: Text("確認"),
                                             content: Text(
-                                                "選択した授業の名前" + "の登録を削除しますか？"),
+                                                e.course + "のカレンダー登録を削除しますか？"),
                                             actions: [
+                                              TextButton(
+                                                child: Text(
+                                                  "いいえ",
+                                                  style: TextStyle(
+                                                      color: Colors.red),
+                                                ),
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                },
+                                              ),
                                               TextButton(
                                                 child: Text("はい"),
                                                 onPressed: () {
@@ -449,16 +458,6 @@ class _CalendarState extends State<Calendar>
                                                           "Error updating Firestore: $error");
                                                     });
                                                   }
-                                                  Navigator.of(context).pop();
-                                                },
-                                              ),
-                                              TextButton(
-                                                child: Text(
-                                                  "いいえ",
-                                                  style: TextStyle(
-                                                      color: Colors.red),
-                                                ),
-                                                onPressed: () {
                                                   Navigator.of(context).pop();
                                                 },
                                               ),

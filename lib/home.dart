@@ -56,6 +56,10 @@ class _HomeState extends State<Home> {
                                   ),
                                   actions: [
                                     TextButton(
+                                        child: Text('いいえ'),
+                                        onPressed: () =>
+                                            Navigator.pop(context, false)),
+                                    TextButton(
                                         child: Text('はい'),
                                         onPressed: () async {
                                           await FirebaseAuth.instance.signOut();
@@ -64,10 +68,6 @@ class _HomeState extends State<Home> {
                                                   builder: (context) =>
                                                       LoginPage()));
                                         }),
-                                    TextButton(
-                                        child: Text('いいえ'),
-                                        onPressed: () =>
-                                            Navigator.pop(context, false))
                                   ],
                                 ));
                         bool shouldLogout = shouldLogoutResult ?? false;
