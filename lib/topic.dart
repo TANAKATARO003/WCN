@@ -81,10 +81,16 @@ class _TopicState extends State<Topic> with SingleTickerProviderStateMixin {
           ),
         ),
       ),
-      body: Center(
-        child: Column(
-          children: [],
-        ),
+      body: TabBarView(
+        controller: _tabController,
+        children: <Widget>[
+          // 新着タブの内容
+          Center(child: Text('新着の内容')),
+          // イベントタブの内容
+          Center(child: Text('イベントの内容')),
+          // 就職活動タブの内容
+          Center(child: Text('就職活動の内容')),
+        ],
       ),
     );
   }

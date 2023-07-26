@@ -1,5 +1,4 @@
 import 'dart:typed_data';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -8,6 +7,8 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:home/facilitytime_data.dart';
+import 'package:home/main.dart';
 
 class Service extends StatefulWidget {
   @override
@@ -29,6 +30,176 @@ class _ServiceState extends State<Service> with SingleTickerProviderStateMixin {
   void dispose() {
     _tabController?.dispose();
     super.dispose();
+  }
+
+  // 施設利用可能時間を表示するモノ
+  Widget showFacilityTime(List<FacilityTimeData> facilitytimedata) {
+    // 現在の日付を取得
+    final nowdate = DateTime.now();
+
+    // 今日の施設利用可能時間を取得
+    List<FacilityTimeData> todayData = facilitytimedata
+        .where((data) =>
+            data.date.year == nowdate.year &&
+            data.date.month == nowdate.month &&
+            data.date.day == nowdate.day)
+        .toList();
+
+    // カードリストを作成
+    List<Widget> cards = [];
+
+    // カードの一番上に追加する要素
+    cards.add(SizedBox(height: 15)); // このテキストとAppBarの間のスペース
+    cards.add(Container(
+      margin: EdgeInsets.only(left: 20),
+      child: Align(
+        alignment: Alignment.topLeft,
+        child: Row(
+          children: [
+            Icon(Icons.store, color: Color(0xFFed6102), size: 24.0),
+            SizedBox(width: 5.0),
+            Text(
+              '店舗営業時間',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ));
+
+    // 各施設ごとにカードを作成してリストに追加
+    if (todayData.isNotEmpty) {
+      if (todayData.first.library.isNotEmpty) {
+        cards.add(createFacilityCard('図書館', todayData.first.library));
+      }
+      if (todayData.first.daiiti.isNotEmpty) {
+        cards.add(createFacilityCard('第一食堂', todayData.first.daiiti));
+      }
+      if (todayData.first.genki.isNotEmpty) {
+        cards.add(createFacilityCard('ＧＥＮＫＩ食堂', todayData.first.genki));
+      }
+      if (todayData.first.takeout.isNotEmpty) {
+        cards.add(createFacilityCard('テイクアウトショップ', todayData.first.takeout));
+      }
+      if (todayData.first.syoseki.isNotEmpty) {
+        cards.add(createFacilityCard('書籍購買店', todayData.first.syoseki));
+      }
+      if (todayData.first.seikyou.isNotEmpty) {
+        cards.add(createFacilityCard('生協本部', todayData.first.seikyou));
+      }
+    }
+
+    // 最後のカードの後に20の隙間を追加
+    cards.add(SizedBox(height: 20));
+
+    return ListView(
+      children: cards,
+    );
+  }
+
+  // 施設利用可能時間を表示するカードを作成する関数
+  Widget createFacilityCard(String facilityName, String time) {
+    // 現在の時間を取得
+    final now = DateTime.now();
+
+    Widget statusIcon;
+    Color statusColor;
+    String statusText;
+    String endTimeText = "";
+
+    if (time == "Closed") {
+      statusColor = Colors.red;
+      statusIcon = Icon(Icons.remove_circle, color: statusColor, size: 20);
+      statusText = "営業時間外";
+    } else {
+      final times = time.split(' - ');
+      final startTime = DateTime(now.year, now.month, now.day,
+          int.parse(times[0].split(':')[0]), int.parse(times[0].split(':')[1]));
+      final endTime = DateTime(now.year, now.month, now.day,
+          int.parse(times[1].split(':')[0]), int.parse(times[1].split(':')[1]));
+
+      if (now.isAfter(startTime) && now.isBefore(endTime)) {
+        statusColor = Colors.green;
+        statusIcon = Icon(Icons.check_circle, color: statusColor, size: 20);
+        statusText = "営業中";
+        endTimeText = "営業終了: ${times[1]}"; // 終了時間を追加
+      } else {
+        statusColor = Colors.red;
+        statusIcon = Icon(Icons.remove_circle, color: statusColor, size: 20);
+        statusText = "営業時間外";
+      }
+    }
+
+    return Card(
+      shadowColor: Colors.grey.withOpacity(0.5),
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15.0),
+      ),
+      margin: EdgeInsets.symmetric(vertical: 5, horizontal: 20),
+      child: Container(
+        height: 100,
+        padding: EdgeInsets.all(5),
+        child: Row(
+          children: [
+            // 左側に配置する画像
+            ClipRRect(
+              borderRadius: BorderRadius.circular(15.0),
+              child: Image.asset(
+                'assets/noimage.png',
+                width: 120,
+                height: 100,
+                fit: BoxFit.cover,
+              ),
+            ),
+            SizedBox(width: 10), // 画像とテキストの間のスペース
+            // 右側に配置するテキスト
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '$facilityName',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 16,
+                    ),
+                  ),
+                  SizedBox(height: 2.5),
+                  Text(
+                    '$time',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w400,
+                      fontSize: 16,
+                    ),
+                  ),
+                  // 3行目の営業中かどうか書くところ
+                  SizedBox(height: 5.0),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      statusIcon,
+                      SizedBox(width: 5.0),
+                      Text(statusText,
+                          style: TextStyle(color: statusColor, fontSize: 15)),
+                      if (endTimeText.isNotEmpty) ...[
+                        // 営業中の場合のみ追加テキストを表示
+                        SizedBox(width: 10.0),
+                        Text(endTimeText,
+                            style: TextStyle(color: Colors.grey, fontSize: 15)),
+                      ]
+                    ],
+                  )
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -227,7 +398,8 @@ class _ServiceState extends State<Service> with SingleTickerProviderStateMixin {
                 ],
               ),
             ),
-            Container(), // '施設利用可能時間'タブのための空のコンテナ
+            // ここで施設利用可能時間を表示
+            showFacilityTime(facilitytimedata),
           ],
         ),
       ),
@@ -345,7 +517,6 @@ Future<Map<String, dynamic>> fetchratings(String name) async {
             .roundToDouble()) /
         100;
   }
-
   return {'average': average.toString(), 'total': ratinglist.length};
 }
 

@@ -48,8 +48,7 @@ class _HomeState extends State<Home> {
                                     children: [
                                       Icon(Icons.warning,
                                           size: 24.0,
-                                          color: Color(
-                                              0xffe72f2f)), // アイコンの色を#808080に設定
+                                          color: Colors.red), // アイコンの色を赤色に設定
                                       SizedBox(width: 7.5),
                                       Text('ログアウトしますか？'),
                                     ],
