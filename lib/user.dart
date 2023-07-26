@@ -1,3 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -148,32 +150,65 @@ class _UserState extends State<User> with SingleTickerProviderStateMixin {
     });
   }
 
+  // エラーメッセージを保持する変数を追加
+  String? _titleErrorText;
+  String? _contentErrorText;
+  String? _attributeErrorText;
+
   // 投稿を送信するメソッド
-  Future<void> _submitPost() async {
-    if (_formKey.currentState!.validate() &&
-        _image != null &&
-        _selectedAttribute != null) {
+  Future<bool> _submitPost() async {
+    bool isValid = _formKey.currentState!.validate();
+
+    // タイトル、コンテンツ、属性のエラーメッセージをセット
+    if (_titleController.text.isEmpty) {
+      _titleErrorText = "タイトルを入力してください";
+    }
+
+    if (_contentController.text.isEmpty) {
+      _contentErrorText = "内容を入力してください";
+    }
+
+    if (_selectedAttribute == null) {
+      _attributeErrorText = "属性を選択してください";
+    }
+
+    String imageUrl;
+
+    final userId = FirebaseAuth.instance.currentUser!.uid;
+
+    if (_image != null) {
       final ref = FirebaseStorage.instance
           .ref()
           .child('post_images')
           .child(DateTime.now().toString() + '.jpg');
-      await ref.putFile(_image!);
-      final imageUrl = await ref.getDownloadURL();
 
+      await ref.putFile(_image!);
+      imageUrl = await ref.getDownloadURL();
+    } else {
+      // 事前にアップロードした noimage.png のURLを使用
+      imageUrl =
+          "https://firebasestorage.googleapis.com/v0/b/wakayamacampusnavi.appspot.com/o/noimage.png?alt=media&token=bf84791d-c3f8-49bf-9f43-81d0de379c89";
+    }
+
+    if (isValid) {
       FirebaseFirestore.instance.collection('posts').add({
         'title': _titleController.text,
         'content': _contentController.text,
         'attribute': _selectedAttribute,
         'imageUrl': imageUrl,
         'timestamp': Timestamp.now(),
+        'userId': userId,
       });
 
       _titleController.clear();
       _contentController.clear();
-      setState(() {
-        _image = null;
-        _selectedAttribute = null;
-      });
+
+      _image = null;
+      _selectedAttribute = null;
+
+      return true; // 成功を示す true を返す
+    } else {
+      return false; // 失敗を示す false を返す
     }
   }
 
@@ -512,19 +547,22 @@ class _UserState extends State<User> with SingleTickerProviderStateMixin {
                       SizedBox(height: 20.0),
 
                       ElevatedButton(
-                        onPressed: () {
-                          _submitPost();
-                          _dialogOpen = false; // 画像のプレビューの判定
-                          Navigator.of(context).pop();
+                        onPressed: () async {
+                          bool isSuccessful = await _submitPost();
+                          if (isSuccessful) {
+                            _dialogOpen = false;
+                            Navigator.of(context).pop();
+                          }
+                          // 失敗した場合は、ダイアログは自動的に閉じられず、エラーメッセージが表示されます。
                         },
                         child: Text(
                           '投稿する',
                           style: TextStyle(
-                            color: Colors.white, // ボタンのテキスト色を設定
+                            color: Colors.white,
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xffed6102), // ボタンの背景色を設定
+                          backgroundColor: Color(0xffed6102),
                         ),
                       ),
                     ],
