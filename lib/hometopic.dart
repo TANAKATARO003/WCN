@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 Future<Uint8List?> fetchurlimage(String name) async {
   return FirebaseStorage.instance.ref('topic/$name.jpg').getData();
@@ -44,6 +45,50 @@ Color getContainerColor(String dateClass) {
   }
 }
 
+// _launchInBrowser関数（デフォルトブラウザで起動）
+final Uri _urlToOpen = Uri.parse('https://www.wakayama-u.ac.jp/');
+
+Future<void> _launchUrl(Uri url) async {
+  if (!await launch(url.toString())) {
+    throw Exception('Could not launch $url');
+  }
+}
+
+// 各カードを押すとダイアログが開く
+Future<void> _showDialog(BuildContext context, Uri url) async {
+  return showDialog<void>(
+    context: context,
+    barrierDismissible: true,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('確認'),
+        content: SingleChildScrollView(
+          child: ListBody(
+            children: <Widget>[
+              Text('外部ブラウザを起動して記事を表示しますが、よろしいですか？'),
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            child: Text('キャンセル'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+          TextButton(
+            child: Text('はい'),
+            onPressed: () {
+              _launchUrl(url); // ここでUriオブジェクトを使用
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
 class NewsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -53,12 +98,12 @@ class NewsList extends StatelessWidget {
       stream: hpDocRef.snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return CircularProgressIndicator();
+          return Container();
         }
 
         final dataMap = snapshot.data?.data() as Map<String, dynamic>?;
         if (dataMap == null || !dataMap.containsKey("news")) {
-          return CircularProgressIndicator();
+          return Container();
         }
         List<Map<String, dynamic>> newsEntries =
             List<Map<String, dynamic>>.from(dataMap["news"] ?? []);
@@ -105,131 +150,138 @@ class NewsList extends StatelessWidget {
                         top: 0,
                         bottom: 0,
                       ),
-                      child: Card(
-                        shadowColor: Colors.grey.withOpacity(0.5),
-                        elevation: 2,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15.0),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // 画像表示部分
-                            FutureBuilder<Uint8List?>(
-                              future: fetchurlimage(news['dateClass']),
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState ==
-                                    ConnectionState.done) {
-                                  if (snapshot.hasData &&
-                                      snapshot.data != null) {
-                                    return ClipRRect(
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(15.0),
-                                        topRight: Radius.circular(15.0),
-                                      ),
-                                      child: Image.memory(
-                                        snapshot.data!,
-                                        width: 320,
-                                        height: 140,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    );
-                                  } else {
-                                    // Firebase Storageからnoimage.pngを試みる
-                                    return FutureBuilder<Uint8List?>(
-                                      future: fetchurlimage("noimage.png"),
-                                      builder: (context, secondarySnapshot) {
-                                        if (secondarySnapshot.connectionState ==
-                                            ConnectionState.done) {
-                                          if (secondarySnapshot.hasData &&
-                                              secondarySnapshot.data != null) {
-                                            return Image.memory(
-                                              secondarySnapshot.data!,
-                                              width: 320,
-                                              height: 140,
-                                              fit: BoxFit.cover,
-                                            );
+                      child: GestureDetector(
+                        onTap: () {
+                          final Uri newsUrl = Uri.parse(
+                              'https://www.wakayama-u.ac.jp/' + news['url']);
+                          _showDialog(context, newsUrl);
+                        },
+                        child: Card(
+                          shadowColor: Colors.grey.withOpacity(0.5),
+                          elevation: 2,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15.0),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // 画像表示部分
+                              FutureBuilder<Uint8List?>(
+                                future: fetchurlimage(news['dateClass']),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.done) {
+                                    if (snapshot.hasData &&
+                                        snapshot.data != null) {
+                                      return ClipRRect(
+                                        borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(15.0),
+                                          topRight: Radius.circular(15.0),
+                                        ),
+                                        child: Image.memory(
+                                          snapshot.data!,
+                                          width: 320,
+                                          height: 140,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      );
+                                    } else {
+                                      // Firebase Storageからnoimage.pngを試みる
+                                      return FutureBuilder<Uint8List?>(
+                                        future: fetchurlimage("noimage.png"),
+                                        builder: (context, secondarySnapshot) {
+                                          if (secondarySnapshot
+                                                  .connectionState ==
+                                              ConnectionState.done) {
+                                            if (secondarySnapshot.hasData &&
+                                                secondarySnapshot.data !=
+                                                    null) {
+                                              return Image.memory(
+                                                secondarySnapshot.data!,
+                                                width: 320,
+                                                height: 140,
+                                                fit: BoxFit.cover,
+                                              );
+                                            } else {
+                                              // assetsからnoimage.pngを試みる
+                                              return Image.asset(
+                                                'assets/noimage.png',
+                                                width: 320,
+                                                height: 140,
+                                                fit: BoxFit.cover,
+                                              );
+                                            }
                                           } else {
-                                            // assetsからnoimage.pngを試みる
-                                            return Image.asset(
-                                              'assets/noimage.png',
+                                            return Container(
                                               width: 320,
                                               height: 140,
-                                              fit: BoxFit.cover,
+                                              color:
+                                                  Colors.grey.withOpacity(0.5),
+                                              child: Center(child: Container()),
                                             );
                                           }
-                                        } else {
-                                          return Container(
-                                            width: 320,
-                                            height: 140,
-                                            color: Colors.grey.withOpacity(0.5),
-                                            child: Center(
-                                                child:
-                                                    CircularProgressIndicator()),
-                                          );
-                                        }
-                                      },
+                                        },
+                                      );
+                                    }
+                                  } else {
+                                    return Container(
+                                      width: 320,
+                                      height: 140,
+                                      color: Colors.grey.withOpacity(0.5),
+                                      child: Center(child: Container()),
                                     );
                                   }
-                                } else {
-                                  return Container(
-                                    width: 320,
-                                    height: 140,
-                                    color: Colors.grey.withOpacity(0.5),
-                                    child: Center(
-                                        child: CircularProgressIndicator()),
-                                  );
-                                }
-                              },
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 15, horizontal: 15),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Container(
-                                        color: getContainerColor(
-                                            news['dateClass']),
-                                        child: Padding(
-                                          padding: EdgeInsets.symmetric(
-                                              vertical: 2.0, horizontal: 8.0),
-                                          child: Text(
-                                            getText(news['dateClass']),
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w500,
-                                              fontSize: 13,
-                                              color: Colors.white,
+                                },
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 15, horizontal: 15),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Container(
+                                          color: getContainerColor(
+                                              news['dateClass']),
+                                          child: Padding(
+                                            padding: EdgeInsets.symmetric(
+                                                vertical: 2.0, horizontal: 8.0),
+                                            child: Text(
+                                              getText(news['dateClass']),
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: 13,
+                                                color: Colors.white,
+                                              ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                      Spacer(), // これを入れると、次のRow内のウィジェットが右端に寄せられる
-                                      Text(
-                                        news['dateText'],
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 14,
+                                        Spacer(), // これを入れると、次のRow内のウィジェットが右端に寄せられる
+                                        Text(
+                                          news['dateText'],
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w400,
+                                            fontSize: 14,
+                                          ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(height: 5),
-                                  Text(
-                                    news['text'],
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
+                                      ],
                                     ),
-                                  ),
-                                ],
+                                    SizedBox(height: 5),
+                                    Text(
+                                      news['text'],
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     );

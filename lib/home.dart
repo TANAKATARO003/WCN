@@ -106,14 +106,20 @@ class Home extends StatelessWidget {
                                             size: 24.0,
                                             color: Colors.red), // アイコンの色を赤色に設定
                                         SizedBox(width: 7.5),
-                                        Text('ログアウトしますか？'),
+                                        Text('ログアウト確認'),
                                       ],
+                                    ),
+                                    content: SingleChildScrollView(
+                                      child: ListBody(
+                                        children: <Widget>[
+                                          Text(
+                                              'ログアウトすると、再ログインするまで機能が利用出来ません。ログアウトしますか？'),
+                                        ],
+                                      ),
                                     ),
                                     actions: [
                                       TextButton(
-                                          child: Text('いいえ',
-                                              style:
-                                                  TextStyle(color: Colors.red)),
+                                          child: Text('いいえ'),
                                           onPressed: () =>
                                               Navigator.pop(context, false)),
                                       TextButton(
@@ -174,21 +180,18 @@ class Home extends StatelessWidget {
                     ))
               ],
               leading: Container(
-                width: 245, // これは例としての値です。ロゴの実際の幅に合わせて調整してください。
-                child: InkWell(
-                  onTap: () {}, // もしタップイベントが必要な場合はこちらを使用してください。
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                        top: 10.0, left: 20.0), // ロゴの位置を「10」下に調整、そして左から「5」に設定
-                    child: Image.asset(
-                      'assets/logo.png',
-                      fit: BoxFit.contain,
-                      height: 32.5, // ロゴの高さを「32.5」に設定
-                    ),
+                width: 245,
+                child: Padding(
+                  padding: EdgeInsets.only(
+                      top: 10.0, left: 20.0), // ロゴの位置を「10」下に調整、そして左から「5」に設定
+                  child: Image.asset(
+                    'assets/logo.png',
+                    fit: BoxFit.contain,
+                    height: 32.5, // ロゴの高さを「32.5」に設定
                   ),
                 ),
               ),
-              leadingWidth: 285, // これも例としての値です。ロゴの実際の幅+余白に合わせて調整してください。
+              leadingWidth: 285,
 
               backgroundColor: Colors.white, // AppBarの色を白色に設定
               elevation: 0.0, // AppBarの影を削除
@@ -196,18 +199,25 @@ class Home extends StatelessWidget {
             )),
         body: ListView(
           children: [
+            // カルーセル
             HomeCarousel(),
             SizedBox(height: 20),
+
+            // トピック
             Container(
               height: 268,
               child: NewsList(),
             ),
             SizedBox(height: 20),
+
+            // 本日の予定
             Container(
               height: 268,
               child: HomeCalendar(),
             ),
             SizedBox(height: 20),
+
+            // 食堂メニュー
             Container(
               height: 268,
               child: HomeCalendar(),

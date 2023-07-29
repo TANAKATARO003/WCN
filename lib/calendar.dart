@@ -434,9 +434,6 @@ class _CalendarState extends State<Calendar>
                                                         TextButton(
                                                           child: Text(
                                                             "いいえ",
-                                                            style: TextStyle(
-                                                                color:
-                                                                    Colors.red),
                                                           ),
                                                           onPressed: () {
                                                             Navigator.of(

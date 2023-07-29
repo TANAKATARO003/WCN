@@ -8,6 +8,7 @@ import 'package:home/main.dart';
 import 'package:home/syllabus_scrapingdata.dart';
 import 'package:home/userdata.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'bottom_tab_page.dart';
 
 class HomeCalendar extends StatefulWidget {
   const HomeCalendar({super.key});
@@ -200,14 +201,6 @@ class _HomeCalendarState extends State<HomeCalendar>
 
                                       return Column(
                                         children: [
-                                          SizedBox(
-                                              width: p == '1'
-                                                  ? 10
-                                                  : 5), // 最初のカードの前のスペースを調整
-                                          SizedBox(
-                                              width: p == '6'
-                                                  ? 10
-                                                  : 5), // 最初のカードの前のスペースを調整
                                           ...schedule.map((e) {
                                             String timeText = '';
                                             String startTimeText = '';
@@ -257,278 +250,300 @@ class _HomeCalendarState extends State<HomeCalendar>
                                                 ? '${e.classroom.substring(0, 10)}...'
                                                 : e.classroom;
 
+                                            bool isFirstCard =
+                                                e == schedule.first;
+                                            bool isLastCard =
+                                                e == schedule.last;
+
                                             return Container(
                                                 width: 320.0,
                                                 height: 240.0,
                                                 margin: EdgeInsets.only(
-                                                  left: 5,
+                                                  left: isFirstCard ? 15 : 0,
+                                                  right: isLastCard ? 0 : 0,
                                                   top: 0,
                                                   bottom: 0,
                                                 ),
-                                                child: Card(
-                                                  shadowColor: Colors.grey
-                                                      .withOpacity(0.5),
-                                                  elevation: 2,
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            15.0),
-                                                  ),
-                                                  child: Column(
-                                                    children: [
-                                                      // 画像表示部分
-                                                      FutureBuilder<Uint8List?>(
-                                                        future: fetchurlimage(
-                                                            e.classroom),
-                                                        builder: (context,
-                                                            snapshot) {
-                                                          if (snapshot
-                                                                  .connectionState ==
-                                                              ConnectionState
-                                                                  .done) {
+                                                child: GestureDetector(
+                                                  onTap: () {
+                                                    BottomTabPage
+                                                        .selectCalendarTab(
+                                                            context);
+                                                  },
+                                                  child: Card(
+                                                    shadowColor: Colors.grey
+                                                        .withOpacity(0.5),
+                                                    elevation: 2,
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              15.0),
+                                                    ),
+                                                    child: Column(
+                                                      children: [
+                                                        // 画像表示部分
+                                                        FutureBuilder<
+                                                            Uint8List?>(
+                                                          future: fetchurlimage(
+                                                              e.classroom),
+                                                          builder: (context,
+                                                              snapshot) {
                                                             if (snapshot
-                                                                    .hasData &&
-                                                                snapshot.data !=
-                                                                    null) {
-                                                              return ClipRRect(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .only(
-                                                                  topLeft: Radius
-                                                                      .circular(
-                                                                          15.0),
-                                                                  topRight: Radius
-                                                                      .circular(
-                                                                          15.0),
-                                                                ),
-                                                                child: Image
-                                                                    .memory(
-                                                                  snapshot
-                                                                      .data!,
-                                                                  width: 320,
-                                                                  height: 140,
-                                                                  fit: BoxFit
-                                                                      .cover,
-                                                                ),
-                                                              );
-                                                            } else {
-                                                              // Firebase Storageからnoimage.pngを試みる
-                                                              return FutureBuilder<
-                                                                  Uint8List?>(
-                                                                future: fetchurlimage(
-                                                                    "noimage.png"),
-                                                                builder: (context,
-                                                                    secondarySnapshot) {
-                                                                  if (secondarySnapshot
-                                                                          .connectionState ==
-                                                                      ConnectionState
-                                                                          .done) {
+                                                                    .connectionState ==
+                                                                ConnectionState
+                                                                    .done) {
+                                                              if (snapshot
+                                                                      .hasData &&
+                                                                  snapshot.data !=
+                                                                      null) {
+                                                                return ClipRRect(
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .only(
+                                                                    topLeft: Radius
+                                                                        .circular(
+                                                                            15.0),
+                                                                    topRight: Radius
+                                                                        .circular(
+                                                                            15.0),
+                                                                  ),
+                                                                  child: Image
+                                                                      .memory(
+                                                                    snapshot
+                                                                        .data!,
+                                                                    width: 320,
+                                                                    height: 140,
+                                                                    fit: BoxFit
+                                                                        .cover,
+                                                                  ),
+                                                                );
+                                                              } else {
+                                                                // Firebase Storageからnoimage2.pngを試みる
+                                                                return FutureBuilder<
+                                                                    Uint8List?>(
+                                                                  future: fetchurlimage(
+                                                                      "noimage2.png"),
+                                                                  builder: (context,
+                                                                      secondarySnapshot) {
                                                                     if (secondarySnapshot
-                                                                            .hasData &&
-                                                                        secondarySnapshot.data !=
-                                                                            null) {
-                                                                      return Image
-                                                                          .memory(
-                                                                        secondarySnapshot
-                                                                            .data!,
-                                                                        width:
-                                                                            320,
-                                                                        height:
-                                                                            140,
-                                                                        fit: BoxFit
-                                                                            .cover,
-                                                                      );
+                                                                            .connectionState ==
+                                                                        ConnectionState
+                                                                            .done) {
+                                                                      if (secondarySnapshot
+                                                                              .hasData &&
+                                                                          secondarySnapshot.data !=
+                                                                              null) {
+                                                                        return Image
+                                                                            .memory(
+                                                                          secondarySnapshot
+                                                                              .data!,
+                                                                          width:
+                                                                              320,
+                                                                          height:
+                                                                              140,
+                                                                          fit: BoxFit
+                                                                              .cover,
+                                                                        );
+                                                                      } else {
+                                                                        // assetsからnoimage2.pngを試みる
+                                                                        return ClipRRect(
+                                                                          borderRadius:
+                                                                              BorderRadius.only(
+                                                                            topLeft:
+                                                                                Radius.circular(15.0),
+                                                                            topRight:
+                                                                                Radius.circular(15.0),
+                                                                          ),
+                                                                          child:
+                                                                              Image.asset(
+                                                                            'assets/noimage2.png',
+                                                                            width:
+                                                                                320,
+                                                                            height:
+                                                                                140,
+                                                                            fit:
+                                                                                BoxFit.cover,
+                                                                          ),
+                                                                        );
+                                                                      }
                                                                     } else {
-                                                                      // assetsからnoimage.pngを試みる
-                                                                      return Image
-                                                                          .asset(
-                                                                        'assets/noimage.png',
+                                                                      return Container(
                                                                         width:
                                                                             320,
                                                                         height:
                                                                             140,
-                                                                        fit: BoxFit
-                                                                            .cover,
+                                                                        color: Colors
+                                                                            .grey
+                                                                            .withOpacity(0.5),
+                                                                        child: Center(
+                                                                            child:
+                                                                                Container()),
                                                                       );
                                                                     }
-                                                                  } else {
-                                                                    return Container(
-                                                                      width:
-                                                                          320,
-                                                                      height:
-                                                                          140,
-                                                                      color: Colors
-                                                                          .grey
-                                                                          .withOpacity(
-                                                                              0.5),
-                                                                      child: Center(
-                                                                          child:
-                                                                              CircularProgressIndicator()),
-                                                                    );
-                                                                  }
-                                                                },
+                                                                  },
+                                                                );
+                                                              }
+                                                            } else {
+                                                              return Container(
+                                                                width: 320,
+                                                                height: 140,
+                                                                color: Colors
+                                                                    .grey
+                                                                    .withOpacity(
+                                                                        0.5),
+                                                                child: Center(
+                                                                    child:
+                                                                        Container()),
                                                               );
                                                             }
-                                                          } else {
-                                                            return Container(
-                                                              width: 320,
-                                                              height: 140,
-                                                              color: Colors.grey
-                                                                  .withOpacity(
-                                                                      0.5),
-                                                              child: Center(
-                                                                  child:
-                                                                      CircularProgressIndicator()),
-                                                            );
-                                                          }
-                                                        },
-                                                      ),
-                                                      Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                    .symmetric(
-                                                                vertical: 15,
-                                                                horizontal: 15),
-                                                        child: Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            Row(
-                                                              crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .baseline,
-                                                              textBaseline:
-                                                                  TextBaseline
-                                                                      .alphabetic, // これで欧文ベースラインを実現
-                                                              children: [
-                                                                Text(
-                                                                  timeText,
-                                                                  style:
-                                                                      TextStyle(
-                                                                    fontSize:
-                                                                        18,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w700,
-                                                                    color: Color(
-                                                                        0xffed6102),
+                                                          },
+                                                        ),
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .symmetric(
+                                                                  vertical: 15,
+                                                                  horizontal:
+                                                                      15),
+                                                          child: Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Row(
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .baseline,
+                                                                textBaseline:
+                                                                    TextBaseline
+                                                                        .alphabetic, // これで欧文ベースラインを実現
+                                                                children: [
+                                                                  Text(
+                                                                    timeText,
+                                                                    style:
+                                                                        TextStyle(
+                                                                      fontSize:
+                                                                          18,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w700,
+                                                                      color: Color(
+                                                                          0xffed6102),
+                                                                    ),
                                                                   ),
-                                                                ),
-                                                                SizedBox(
-                                                                    width: 10),
-                                                                Text(
-                                                                  '$startTimeText',
-                                                                  style:
-                                                                      TextStyle(
-                                                                    fontSize:
-                                                                        18,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w700,
+                                                                  SizedBox(
+                                                                      width:
+                                                                          10),
+                                                                  Text(
+                                                                    '$startTimeText',
+                                                                    style:
+                                                                        TextStyle(
+                                                                      fontSize:
+                                                                          18,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w700,
+                                                                    ),
                                                                   ),
-                                                                ),
-                                                                Text(
-                                                                  ' - ',
-                                                                  style:
-                                                                      TextStyle(
-                                                                    fontSize:
-                                                                        14,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w700,
+                                                                  Text(
+                                                                    ' - ',
+                                                                    style:
+                                                                        TextStyle(
+                                                                      fontSize:
+                                                                          14,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w700,
+                                                                    ),
                                                                   ),
-                                                                ),
-                                                                Text(
-                                                                  '$endTimeText',
-                                                                  style:
-                                                                      TextStyle(
-                                                                    fontSize:
-                                                                        16,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w700,
+                                                                  Text(
+                                                                    '$endTimeText',
+                                                                    style:
+                                                                        TextStyle(
+                                                                      fontSize:
+                                                                          16,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w700,
+                                                                    ),
                                                                   ),
-                                                                ),
-                                                                Spacer(),
-                                                                Text(
-                                                                  classroomText,
-                                                                  style:
-                                                                      TextStyle(
-                                                                    fontSize:
-                                                                        14,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w400,
-                                                                    color: Color(
-                                                                        0xFF707070),
+                                                                  Spacer(),
+                                                                  Text(
+                                                                    classroomText,
+                                                                    style:
+                                                                        TextStyle(
+                                                                      fontSize:
+                                                                          14,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w400,
+                                                                      color: Color(
+                                                                          0xFF707070),
+                                                                    ),
                                                                   ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                            SizedBox(
-                                                                height: 10),
-                                                            // 科目名とsvgアイコン。カードからはみ出ないように判定している
-                                                            Align(
-                                                              alignment: Alignment
-                                                                  .centerLeft,
-                                                              child:
-                                                                  LayoutBuilder(
-                                                                builder: (BuildContext
-                                                                        context,
-                                                                    BoxConstraints
-                                                                        constraints) {
-                                                                  final maxWidthForText =
-                                                                      constraints
-                                                                              .maxWidth -
-                                                                          16.0 -
-                                                                          7.5; // SVGの幅と間隔を引きます
+                                                                ],
+                                                              ),
+                                                              SizedBox(
+                                                                  height: 10),
+                                                              // 科目名とsvgアイコン。カードからはみ出ないように判定している
+                                                              Align(
+                                                                alignment: Alignment
+                                                                    .centerLeft,
+                                                                child:
+                                                                    LayoutBuilder(
+                                                                  builder: (BuildContext
+                                                                          context,
+                                                                      BoxConstraints
+                                                                          constraints) {
+                                                                    final maxWidthForText = constraints
+                                                                            .maxWidth -
+                                                                        16.0 -
+                                                                        7.5; // SVGの幅と間隔を引きます
 
-                                                                  return Row(
-                                                                    children: [
-                                                                      SvgPicture
-                                                                          .asset(
-                                                                        e.courseofferedby ==
-                                                                                '共通'
-                                                                            ? 'assets/com.svg'
-                                                                            : 'assets/other.svg',
-                                                                        width:
-                                                                            16.0,
-                                                                        height:
-                                                                            16.0,
-                                                                      ),
-                                                                      SizedBox(
+                                                                    return Row(
+                                                                      children: [
+                                                                        SvgPicture
+                                                                            .asset(
+                                                                          e.courseofferedby == '共通'
+                                                                              ? 'assets/com.svg'
+                                                                              : 'assets/other.svg',
                                                                           width:
-                                                                              7.5),
-                                                                      ConstrainedBox(
-                                                                        constraints:
-                                                                            BoxConstraints(
-                                                                          maxWidth:
-                                                                              maxWidthForText,
+                                                                              16.0,
+                                                                          height:
+                                                                              16.0,
                                                                         ),
-                                                                        child:
-                                                                            Text(
-                                                                          e.course,
-                                                                          overflow:
-                                                                              TextOverflow.ellipsis, // テキストが長すぎて表示できない場合、末尾に...を表示します
-                                                                          style:
-                                                                              TextStyle(
-                                                                            fontSize:
-                                                                                16,
-                                                                            fontWeight:
-                                                                                FontWeight.w700,
+                                                                        SizedBox(
+                                                                            width:
+                                                                                7.5),
+                                                                        ConstrainedBox(
+                                                                          constraints:
+                                                                              BoxConstraints(
+                                                                            maxWidth:
+                                                                                maxWidthForText,
+                                                                          ),
+                                                                          child:
+                                                                              Text(
+                                                                            e.course,
+                                                                            overflow:
+                                                                                TextOverflow.ellipsis, // テキストが長すぎて表示できない場合、末尾に...を表示します
+                                                                            style:
+                                                                                TextStyle(
+                                                                              fontSize: 16,
+                                                                              fontWeight: FontWeight.w700,
+                                                                            ),
                                                                           ),
                                                                         ),
-                                                                      ),
-                                                                    ],
-                                                                  );
-                                                                },
+                                                                      ],
+                                                                    );
+                                                                  },
+                                                                ),
                                                               ),
-                                                            ),
-                                                          ],
+                                                            ],
+                                                          ),
                                                         ),
-                                                      ),
-                                                    ],
+                                                      ],
+                                                    ),
                                                   ),
                                                 ));
                                             return SizedBox();

@@ -10,8 +10,11 @@ class BottomTabPage extends StatefulWidget {
   const BottomTabPage({super.key});
 
   @override
-  State<StatefulWidget> createState() {
-    return _BottomTabPageState();
+  _BottomTabPageState createState() => _BottomTabPageState();
+
+  static void selectCalendarTab(BuildContext context) {
+    final state = context.findAncestorStateOfType<_BottomTabPageState>();
+    state?._onItemTapped(1);
   }
 }
 
@@ -30,10 +33,9 @@ class _BottomTabPageState extends State<BottomTabPage> {
     return Scaffold(
       body: _pageWidgets.elementAt(_currentIndex),
       bottomNavigationBar: BottomNavigationBar(
-        selectedFontSize: 11, // 下タブのフォントサイズ（選択して大きくなった時）
-        unselectedFontSize: 10, // 下タブのフォントサイズ（非選択時）
-        selectedLabelStyle:
-            const TextStyle(fontWeight: FontWeight.bold), // 選択されたタブのフォントを太く設定
+        selectedFontSize: 11,
+        unselectedFontSize: 10,
+        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
         items: <BottomNavigationBarItem>[
           const BottomNavigationBarItem(icon: Icon(TabLogo.home), label: 'ホーム'),
           const BottomNavigationBarItem(
@@ -46,7 +48,7 @@ class _BottomTabPageState extends State<BottomTabPage> {
               icon: Icon(TabLogo.service), label: 'サービス'),
         ],
         currentIndex: _currentIndex,
-        fixedColor: const Color(0xFFED6102), // 下タブの色を「#ed6102」に指定
+        fixedColor: const Color(0xFFED6102),
         onTap: _onItemTapped,
         type: BottomNavigationBarType.fixed,
       ),
@@ -54,4 +56,8 @@ class _BottomTabPageState extends State<BottomTabPage> {
   }
 
   void _onItemTapped(int index) => setState(() => _currentIndex = index);
+
+  void selectCalendarTab() {
+    _onItemTapped(1); // カレンダータブのインデックスは1
+  }
 }
