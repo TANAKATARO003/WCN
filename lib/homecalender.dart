@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:home/main.dart';
 import 'package:home/syllabus_scrapingdata.dart';
@@ -12,6 +14,10 @@ class HomeCalendar extends StatefulWidget {
 
   @override
   _HomeCalendarState createState() => _HomeCalendarState();
+}
+
+Future<Uint8List?> fetchurlimage(String name) async {
+  return FirebaseStorage.instance.ref('classroom/$name.jpg').getData();
 }
 
 class _HomeCalendarState extends State<HomeCalendar>
@@ -147,7 +153,7 @@ class _HomeCalendarState extends State<HomeCalendar>
                         child: Align(
                           alignment: Alignment.topLeft,
                           child: Text(
-                            '履修科目',
+                            '本日の予定',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -156,208 +162,285 @@ class _HomeCalendarState extends State<HomeCalendar>
                         ),
                       ),
                       SizedBox(height: 5), // 登録した履修科目カードとタブバーの間のスペース
-                      // 履修科目の記事カード
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        key: UniqueKey(),
-                        child: Row(
-                          children: todayschedule.isEmpty
-                              ? [
-                                  SizedBox(height: 40),
-                                  Center(
-                                    child: Text(
-                                      '本日の履修科目は登録されていません。',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w700,
-                                        color: Colors.black,
+                      // 何か引っ張った時の青いやつ消すために追加しました
+                      NotificationListener<OverscrollIndicatorNotification>(
+                        onNotification: (overscroll) {
+                          overscroll.disallowGlow();
+                          return true;
+                        },
+                        // 履修科目の記事カード
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          key: UniqueKey(),
+                          child: Row(
+                            children: todayschedule.isEmpty
+                                ? [
+                                    SizedBox(height: 40, width: 20),
+                                    Center(
+                                      child: Text(
+                                        '本日の履修科目は登録されていません。',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.black,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ]
-                              : ['1', '2', '3', '4', '5', '6'].map(
-                                  (p) {
-                                    String todayweekday =
-                                        getWeekdayInJapaneseShort(date.weekday);
-                                    final schedule = todayschedule
-                                        .where((schedule) => schedule.dayperiod
-                                            .contains('$todayweekday$p'))
-                                        .toList();
+                                  ]
+                                : ['1', '2', '3', '4', '5', '6'].map(
+                                    (p) {
+                                      String todayweekday =
+                                          getWeekdayInJapaneseShort(
+                                              date.weekday);
+                                      final schedule = todayschedule
+                                          .where((schedule) => schedule
+                                              .dayperiod
+                                              .contains('$todayweekday$p'))
+                                          .toList();
 
-                                    return Column(
-                                      children: [
-                                        SizedBox(
-                                            width: p == '1'
-                                                ? 10
-                                                : 5), // 最初のカードの前のスペースを調整
-                                        ...schedule.map((e) {
-                                          String timeText = '';
-                                          String startTimeText = '';
-                                          String endTimeText = '';
+                                      return Column(
+                                        children: [
+                                          SizedBox(
+                                              width: p == '1'
+                                                  ? 10
+                                                  : 5), // 最初のカードの前のスペースを調整
+                                          SizedBox(
+                                              width: p == '6'
+                                                  ? 10
+                                                  : 5), // 最初のカードの前のスペースを調整
+                                          ...schedule.map((e) {
+                                            String timeText = '';
+                                            String startTimeText = '';
+                                            String endTimeText = '';
 
-                                          switch (p) {
-                                            case '1':
-                                              timeText = '１限';
-                                              startTimeText = '9:10';
-                                              endTimeText = '10:50';
-                                              break;
-                                            case '2':
-                                              timeText = '２限';
-                                              startTimeText = '10:50';
-                                              endTimeText = '12:20';
-                                              break;
-                                            case '3':
-                                              timeText = '３限';
-                                              startTimeText = '13:10';
-                                              endTimeText = '14:40';
-                                              break;
-                                            case '4':
-                                              timeText = '４限';
-                                              startTimeText = '14:50';
-                                              endTimeText = '16:20';
-                                              break;
-                                            case '5':
-                                              timeText = '５限';
-                                              startTimeText = '16:30';
-                                              endTimeText = '18:00';
-                                              break;
-                                            case '6':
-                                              timeText = '６限';
-                                              startTimeText = '18:10';
-                                              endTimeText = '19:40';
-                                              break;
-                                            default:
-                                              timeText = '';
-                                              startTimeText = '';
-                                              endTimeText = '';
-                                              break;
-                                          }
+                                            switch (p) {
+                                              case '1':
+                                                timeText = '１限';
+                                                startTimeText = '9:10';
+                                                endTimeText = '10:50';
+                                                break;
+                                              case '2':
+                                                timeText = '２限';
+                                                startTimeText = '10:50';
+                                                endTimeText = '12:20';
+                                                break;
+                                              case '3':
+                                                timeText = '３限';
+                                                startTimeText = '13:10';
+                                                endTimeText = '14:40';
+                                                break;
+                                              case '4':
+                                                timeText = '４限';
+                                                startTimeText = '14:50';
+                                                endTimeText = '16:20';
+                                                break;
+                                              case '5':
+                                                timeText = '５限';
+                                                startTimeText = '16:30';
+                                                endTimeText = '18:00';
+                                                break;
+                                              case '6':
+                                                timeText = '６限';
+                                                startTimeText = '18:10';
+                                                endTimeText = '19:40';
+                                                break;
+                                              default:
+                                                timeText = '';
+                                                startTimeText = '';
+                                                endTimeText = '';
+                                                break;
+                                            }
 
-                                          String classroomText = e
-                                                      .classroom.length >
-                                                  12
-                                              ? '${e.classroom.substring(0, 12)}...'
-                                              : e.classroom;
+                                            String classroomText = e
+                                                        .classroom.length >
+                                                    10
+                                                ? '${e.classroom.substring(0, 10)}...'
+                                                : e.classroom;
 
-                                          return Container(
-                                            width: 320.0,
-                                            height: 100,
-                                            margin: EdgeInsets.only(
-                                              left: 5,
-                                              top: 0,
-                                              bottom: 0,
-                                            ),
-                                            child: Card(
-                                              shadowColor:
-                                                  Colors.grey.withOpacity(0.5),
-                                              elevation: 2,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(15.0),
-                                              ),
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        vertical: 15,
-                                                        horizontal: 15),
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Row(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .baseline,
-                                                      textBaseline: TextBaseline
-                                                          .alphabetic, // これで欧文ベースラインを実現
-                                                      children: [
-                                                        Text(
-                                                          timeText,
-                                                          style: TextStyle(
-                                                            fontSize: 18,
-                                                            fontWeight:
-                                                                FontWeight.w700,
-                                                            color: Color(
-                                                                0xffed6102),
-                                                          ),
-                                                        ),
-                                                        SizedBox(width: 10),
-                                                        Text(
-                                                          '$startTimeText',
-                                                          style: TextStyle(
-                                                            fontSize: 18,
-                                                            fontWeight:
-                                                                FontWeight.w700,
-                                                          ),
-                                                        ),
-                                                        Text(
-                                                          ' - ',
-                                                          style: TextStyle(
-                                                            fontSize: 14,
-                                                            fontWeight:
-                                                                FontWeight.w700,
-                                                          ),
-                                                        ),
-                                                        Text(
-                                                          '$endTimeText',
-                                                          style: TextStyle(
-                                                            fontSize: 16,
-                                                            fontWeight:
-                                                                FontWeight.w700,
-                                                          ),
-                                                        ),
-                                                        Spacer(),
-                                                        Text(
-                                                          classroomText,
-                                                          style: TextStyle(
-                                                            fontSize: 14,
-                                                            fontWeight:
-                                                                FontWeight.w400,
-                                                            color: Color(
-                                                                0xFF707070),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    SizedBox(height: 10),
-                                                    // 科目名とsvgアイコン。カードからはみ出ないように判定している
-                                                    Align(
-                                                      alignment:
-                                                          Alignment.centerLeft,
-                                                      child: LayoutBuilder(
-                                                        builder: (BuildContext
-                                                                context,
-                                                            BoxConstraints
-                                                                constraints) {
-                                                          final maxWidthForText =
-                                                              constraints
-                                                                      .maxWidth -
-                                                                  16.0 -
-                                                                  7.5; // SVGの幅と間隔を引きます
-
-                                                          return Row(
-                                                            children: [
-                                                              SvgPicture.asset(
-                                                                e.courseofferedby ==
-                                                                        '共通'
-                                                                    ? 'assets/com.svg'
-                                                                    : 'assets/other.svg',
-                                                                width: 16.0,
-                                                                height: 16.0,
-                                                              ),
-                                                              SizedBox(
-                                                                  width: 7.5),
-                                                              ConstrainedBox(
-                                                                constraints:
-                                                                    BoxConstraints(
-                                                                  maxWidth:
-                                                                      maxWidthForText,
+                                            return Container(
+                                                width: 320.0,
+                                                height: 240.0,
+                                                margin: EdgeInsets.only(
+                                                  left: 5,
+                                                  top: 0,
+                                                  bottom: 0,
+                                                ),
+                                                child: Card(
+                                                  shadowColor: Colors.grey
+                                                      .withOpacity(0.5),
+                                                  elevation: 2,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            15.0),
+                                                  ),
+                                                  child: Column(
+                                                    children: [
+                                                      // 画像表示部分
+                                                      FutureBuilder<Uint8List?>(
+                                                        future: fetchurlimage(
+                                                            e.classroom),
+                                                        builder: (context,
+                                                            snapshot) {
+                                                          if (snapshot
+                                                                  .connectionState ==
+                                                              ConnectionState
+                                                                  .done) {
+                                                            if (snapshot
+                                                                    .hasData &&
+                                                                snapshot.data !=
+                                                                    null) {
+                                                              return ClipRRect(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .only(
+                                                                  topLeft: Radius
+                                                                      .circular(
+                                                                          15.0),
+                                                                  topRight: Radius
+                                                                      .circular(
+                                                                          15.0),
                                                                 ),
-                                                                child: Text(
-                                                                  e.course,
-                                                                  overflow:
-                                                                      TextOverflow
-                                                                          .ellipsis, // テキストが長すぎて表示できない場合、末尾に...を表示します
+                                                                child: Image
+                                                                    .memory(
+                                                                  snapshot
+                                                                      .data!,
+                                                                  width: 320,
+                                                                  height: 140,
+                                                                  fit: BoxFit
+                                                                      .cover,
+                                                                ),
+                                                              );
+                                                            } else {
+                                                              // Firebase Storageからnoimage.pngを試みる
+                                                              return FutureBuilder<
+                                                                  Uint8List?>(
+                                                                future: fetchurlimage(
+                                                                    "noimage.png"),
+                                                                builder: (context,
+                                                                    secondarySnapshot) {
+                                                                  if (secondarySnapshot
+                                                                          .connectionState ==
+                                                                      ConnectionState
+                                                                          .done) {
+                                                                    if (secondarySnapshot
+                                                                            .hasData &&
+                                                                        secondarySnapshot.data !=
+                                                                            null) {
+                                                                      return Image
+                                                                          .memory(
+                                                                        secondarySnapshot
+                                                                            .data!,
+                                                                        width:
+                                                                            320,
+                                                                        height:
+                                                                            140,
+                                                                        fit: BoxFit
+                                                                            .cover,
+                                                                      );
+                                                                    } else {
+                                                                      // assetsからnoimage.pngを試みる
+                                                                      return Image
+                                                                          .asset(
+                                                                        'assets/noimage.png',
+                                                                        width:
+                                                                            320,
+                                                                        height:
+                                                                            140,
+                                                                        fit: BoxFit
+                                                                            .cover,
+                                                                      );
+                                                                    }
+                                                                  } else {
+                                                                    return Container(
+                                                                      width:
+                                                                          320,
+                                                                      height:
+                                                                          140,
+                                                                      color: Colors
+                                                                          .grey
+                                                                          .withOpacity(
+                                                                              0.5),
+                                                                      child: Center(
+                                                                          child:
+                                                                              CircularProgressIndicator()),
+                                                                    );
+                                                                  }
+                                                                },
+                                                              );
+                                                            }
+                                                          } else {
+                                                            return Container(
+                                                              width: 320,
+                                                              height: 140,
+                                                              color: Colors.grey
+                                                                  .withOpacity(
+                                                                      0.5),
+                                                              child: Center(
+                                                                  child:
+                                                                      CircularProgressIndicator()),
+                                                            );
+                                                          }
+                                                        },
+                                                      ),
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .symmetric(
+                                                                vertical: 15,
+                                                                horizontal: 15),
+                                                        child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Row(
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .baseline,
+                                                              textBaseline:
+                                                                  TextBaseline
+                                                                      .alphabetic, // これで欧文ベースラインを実現
+                                                              children: [
+                                                                Text(
+                                                                  timeText,
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontSize:
+                                                                        18,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w700,
+                                                                    color: Color(
+                                                                        0xffed6102),
+                                                                  ),
+                                                                ),
+                                                                SizedBox(
+                                                                    width: 10),
+                                                                Text(
+                                                                  '$startTimeText',
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontSize:
+                                                                        18,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w700,
+                                                                  ),
+                                                                ),
+                                                                Text(
+                                                                  ' - ',
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontSize:
+                                                                        14,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w700,
+                                                                  ),
+                                                                ),
+                                                                Text(
+                                                                  '$endTimeText',
                                                                   style:
                                                                       TextStyle(
                                                                     fontSize:
@@ -367,23 +450,94 @@ class _HomeCalendarState extends State<HomeCalendar>
                                                                             .w700,
                                                                   ),
                                                                 ),
+                                                                Spacer(),
+                                                                Text(
+                                                                  classroomText,
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontSize:
+                                                                        14,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w400,
+                                                                    color: Color(
+                                                                        0xFF707070),
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                            SizedBox(
+                                                                height: 10),
+                                                            // 科目名とsvgアイコン。カードからはみ出ないように判定している
+                                                            Align(
+                                                              alignment: Alignment
+                                                                  .centerLeft,
+                                                              child:
+                                                                  LayoutBuilder(
+                                                                builder: (BuildContext
+                                                                        context,
+                                                                    BoxConstraints
+                                                                        constraints) {
+                                                                  final maxWidthForText =
+                                                                      constraints
+                                                                              .maxWidth -
+                                                                          16.0 -
+                                                                          7.5; // SVGの幅と間隔を引きます
+
+                                                                  return Row(
+                                                                    children: [
+                                                                      SvgPicture
+                                                                          .asset(
+                                                                        e.courseofferedby ==
+                                                                                '共通'
+                                                                            ? 'assets/com.svg'
+                                                                            : 'assets/other.svg',
+                                                                        width:
+                                                                            16.0,
+                                                                        height:
+                                                                            16.0,
+                                                                      ),
+                                                                      SizedBox(
+                                                                          width:
+                                                                              7.5),
+                                                                      ConstrainedBox(
+                                                                        constraints:
+                                                                            BoxConstraints(
+                                                                          maxWidth:
+                                                                              maxWidthForText,
+                                                                        ),
+                                                                        child:
+                                                                            Text(
+                                                                          e.course,
+                                                                          overflow:
+                                                                              TextOverflow.ellipsis, // テキストが長すぎて表示できない場合、末尾に...を表示します
+                                                                          style:
+                                                                              TextStyle(
+                                                                            fontSize:
+                                                                                16,
+                                                                            fontWeight:
+                                                                                FontWeight.w700,
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  );
+                                                                },
                                                               ),
-                                                            ],
-                                                          );
-                                                        },
+                                                            ),
+                                                          ],
+                                                        ),
                                                       ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                          );
-                                          return SizedBox();
-                                        })
-                                      ],
-                                    );
-                                  },
-                                ).toList(),
+                                                    ],
+                                                  ),
+                                                ));
+                                            return SizedBox();
+                                          })
+                                        ],
+                                      );
+                                    },
+                                  ).toList(),
+                          ),
                         ),
                       ),
                     ],

@@ -9,7 +9,6 @@ import 'package:home/login.dart';
 import 'package:home/signup.dart';
 import 'package:home/syllabus_scrapingdata.dart';
 import 'package:home/facilitytime_data.dart';
-import 'home.dart';
 
 Future<List<SyllabusScrapingdata>> loadscrapingdata() async {
   final data =

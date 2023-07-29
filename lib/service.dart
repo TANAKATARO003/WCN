@@ -48,26 +48,7 @@ class _ServiceState extends State<Service> with SingleTickerProviderStateMixin {
     List<Widget> cards = [];
 
     // カードの一番上に追加する要素
-    cards.add(SizedBox(height: 15)); // このテキストとAppBarの間のスペース
-    cards.add(Container(
-      margin: EdgeInsets.only(left: 20),
-      child: Align(
-        alignment: Alignment.topLeft,
-        child: Row(
-          children: [
-            Icon(Icons.store, color: Color(0xFFed6102), size: 24.0),
-            SizedBox(width: 5.0),
-            Text(
-              '店舗営業時間',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      ),
-    ));
+    cards.add(SizedBox(height: 15)); // カードとAppBarの間のスペース
 
     // 各施設ごとにカードを作成してリストに追加
     if (todayData.isNotEmpty) {
