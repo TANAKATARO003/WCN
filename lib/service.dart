@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:home/facilitytime_data.dart';
 import 'package:home/main.dart';
 
@@ -149,7 +148,7 @@ class _ServiceState extends State<Service> with SingleTickerProviderStateMixin {
             ClipRRect(
               borderRadius: BorderRadius.circular(15.0),
               child: Image.asset(
-                'assets/noimage.png',
+                'assets/${facilityName}.png',
                 width: 120,
                 height: 100,
                 fit: BoxFit.cover,
@@ -247,13 +246,13 @@ class _ServiceState extends State<Service> with SingleTickerProviderStateMixin {
               tabs: <Widget>[
                 Tab(
                   child: Text(
-                    '食堂メニュー',
+                    '施設利用可能時間',
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
                   ),
                 ),
                 Tab(
                   child: Text(
-                    '施設利用可能時間',
+                    '食堂メニュー',
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
                   ),
                 ),
@@ -267,6 +266,9 @@ class _ServiceState extends State<Service> with SingleTickerProviderStateMixin {
         child: TabBarView(
           controller: _tabController,
           children: <Widget>[
+            // ここで施設利用可能時間を表示
+            showFacilityTime(facilitytimedata),
+            // ここで食堂を表示
             Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -398,8 +400,6 @@ class _ServiceState extends State<Service> with SingleTickerProviderStateMixin {
                 ],
               ),
             ),
-            // ここで施設利用可能時間を表示
-            showFacilityTime(facilitytimedata),
           ],
         ),
       ),
@@ -601,10 +601,26 @@ class GenkiPage extends StatelessWidget {
                               builder:
                                   (BuildContext context, StateSetter setState) {
                                 return AlertDialog(
-                                  title: Text('星をタップして評価してください。',
-                                      style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500)),
+                                  title: Column(
+                                    children: [
+                                      Text(
+                                          '品名：' +
+                                              removeSpecialTag(item['name']),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.blue)),
+                                      SizedBox(
+                                        height: 10.0,
+                                      ),
+                                      Text('星をタップして評価してください。',
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500)),
+                                    ],
+                                  ),
                                   content: Column(
                                     mainAxisSize: MainAxisSize.min,
                                     children: <Widget>[
@@ -922,10 +938,26 @@ class DaiichiPage extends StatelessWidget {
                               builder:
                                   (BuildContext context, StateSetter setState) {
                                 return AlertDialog(
-                                  title: Text('星をタップして評価してください。',
-                                      style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500)),
+                                  title: Column(
+                                    children: [
+                                      Text(
+                                          '品名：' +
+                                              removeSpecialTag(item['name']),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.blue)),
+                                      SizedBox(
+                                        height: 10.0,
+                                      ),
+                                      Text('星をタップして評価してください。',
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500)),
+                                    ],
+                                  ),
                                   content: Column(
                                     mainAxisSize: MainAxisSize.min,
                                     children: <Widget>[

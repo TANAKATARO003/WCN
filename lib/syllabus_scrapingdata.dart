@@ -13,7 +13,9 @@ class SyllabusScrapingdata {
       identical(this, other) ||
       other is SyllabusScrapingdata &&
           runtimeType == other.runtimeType &&
-          course == other.course;
+          course == other.course &&
+          dayperiod == other.dayperiod &&
+          maininstructor == other.maininstructor;
 
   @override
   int get hashCode => course.hashCode;

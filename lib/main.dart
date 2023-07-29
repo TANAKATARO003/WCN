@@ -9,9 +9,7 @@ import 'package:home/login.dart';
 import 'package:home/signup.dart';
 import 'package:home/syllabus_scrapingdata.dart';
 import 'package:home/facilitytime_data.dart';
-
 import 'home.dart';
-// import 'package:your_package_name/SignUpPage.dart'; // SignUpPageのパスを正しく設定してください
 
 Future<List<SyllabusScrapingdata>> loadscrapingdata() async {
   final data =
@@ -146,7 +144,6 @@ class MyApp extends StatelessWidget {
           : BottomTabPage(),
       routes: <String, WidgetBuilder>{
         "/Login": (BuildContext context) => LoginPage(),
-        // "/SignUp": (BuildContext context) => SignUpPage(),  // SignUpPageのクラスが作成されていればコメントを外してください
       },
     );
   }

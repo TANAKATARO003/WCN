@@ -1,8 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-
+import 'homecalender.dart';
+import 'main.dart';
 import 'login.dart';
+import 'service.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -55,7 +57,9 @@ class _HomeState extends State<Home> {
                                   ),
                                   actions: [
                                     TextButton(
-                                        child: Text('いいえ'),
+                                        child: Text('いいえ',
+                                            style:
+                                                TextStyle(color: Colors.red)),
                                         onPressed: () =>
                                             Navigator.pop(context, false)),
                                     TextButton(
@@ -132,58 +136,65 @@ class _HomeState extends State<Home> {
             elevation: 0.0, // AppBarの影を削除
             centerTitle: false,
           )),
-      body: Stack(
-        // Stackを使用してインジケータとカルーセルを重ねる
-        children: <Widget>[
-          CarouselSlider(
-            carouselController: _controller,
-            options: CarouselOptions(
-              viewportFraction: 1.0, // カルーセルアイテムはビューポートの幅全体を占める
-              autoPlay: true,
-              autoPlayInterval: Duration(seconds: 5), // 5秒ごとにスライド
-              height: imageHeight, // アスペクト比に基づいて設定した高さ
-              onPageChanged: (index, reason) {
-                // 追加：ページが変わったときに現在のインデックスを更新
-                setState(() {
-                  _current = index;
-                });
-              },
-            ),
-            items: imgList
-                .map((item) => Builder(
-                      builder: (BuildContext context) {
-                        return Image.asset(item,
-                            width: imageWidth,
-                            height: imageHeight,
-                            fit: BoxFit.cover);
-                      },
-                    ))
-                .toList(),
+      body: Column(
+        children: [
+          Stack(
+            // Stackを使用してインジケータとカルーセルを重ねる
+            children: <Widget>[
+              CarouselSlider(
+                carouselController: _controller,
+                options: CarouselOptions(
+                  viewportFraction: 1.0, // カルーセルアイテムはビューポートの幅全体を占める
+                  autoPlay: true,
+                  autoPlayInterval: Duration(seconds: 5), // 5秒ごとにスライド
+                  height: imageHeight, // アスペクト比に基づいて設定した高さ
+                  onPageChanged: (index, reason) {
+                    // 追加：ページが変わったときに現在のインデックスを更新
+                    setState(() {
+                      _current = index;
+                    });
+                  },
+                ),
+                items: imgList
+                    .map((item) => Builder(
+                          builder: (BuildContext context) {
+                            return Image.asset(item,
+                                width: imageWidth,
+                                height: imageHeight,
+                                fit: BoxFit.cover);
+                          },
+                        ))
+                    .toList(),
+              ),
+              Positioned(
+                // Positionedウィジェットを使用してインジケータの位置を制御する
+                left: 0,
+                right: 0,
+                bottom: -5, // 画像の下限から-5の距離に設定
+                child: Row(
+                  // インジケータの表示
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: imgList.map((url) {
+                    int index = imgList.indexOf(url);
+                    return Container(
+                      width: 8.0,
+                      height: 8.0,
+                      margin:
+                          EdgeInsets.symmetric(vertical: 10.0, horizontal: 2.0),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: _current == index
+                            ? Color(0xffed6102) // インジケータの色を「#ed6102」に変更
+                            : Color.fromRGBO(0, 0, 0, 0.4),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
           ),
-          Positioned(
-            // Positionedウィジェットを使用してインジケータの位置を制御する
-            left: 0,
-            right: 0,
-            bottom: -5, // 画像の下限から-5の距離に設定
-            child: Row(
-              // インジケータの表示
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: imgList.map((url) {
-                int index = imgList.indexOf(url);
-                return Container(
-                  width: 8.0,
-                  height: 8.0,
-                  margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 2.0),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: _current == index
-                        ? Color(0xffed6102) // インジケータの色を「#ed6102」に変更
-                        : Color.fromRGBO(0, 0, 0, 0.4),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
+          SizedBox(height: 20), // 20のスペースを追加
+          Expanded(child: HomeCalendar()),
         ],
       ),
     );

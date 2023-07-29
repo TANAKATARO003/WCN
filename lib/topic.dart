@@ -65,14 +65,14 @@ class _TopicState extends State<Topic> with SingleTickerProviderStateMixin {
                 // イベントタブ
                 Tab(
                   child: Text(
-                    'イベント',
+                    'お知らせ',
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
                   ),
                 ),
                 // 就職活動タブ
                 Tab(
                   child: Text(
-                    '就職活動',
+                    'イベント',
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
                   ),
                 ),
@@ -87,9 +87,9 @@ class _TopicState extends State<Topic> with SingleTickerProviderStateMixin {
           // 新着タブの内容
           Center(child: Text('新着の内容')),
           // イベントタブの内容
-          Center(child: Text('イベントの内容')),
+          Center(child: Text('お知らせの内容')),
           // 就職活動タブの内容
-          Center(child: Text('就職活動の内容')),
+          Center(child: Text('イベントの内容')),
         ],
       ),
     );

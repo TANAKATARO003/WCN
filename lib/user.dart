@@ -1,6 +1,5 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
@@ -279,23 +278,23 @@ class _UserState extends State<User> with SingleTickerProviderStateMixin {
         controller: _tabController,
         children: [
           Padding(
-            padding: EdgeInsets.only(top: 15.0), // 一番上の記事カードとタブバーの間の隙間
+            padding: EdgeInsets.only(top: 0.0), // 一番上の記事カードとタブバーの間の隙間
             child: _buildPostsList("新着"),
           ),
           Padding(
-            padding: EdgeInsets.only(top: 15.0), // 一番上の記事カードとタブバーの間の隙間
+            padding: EdgeInsets.only(top: 0.0), // 一番上の記事カードとタブバーの間の隙間
             child: _buildPostsList("イベント"),
           ),
           Padding(
-            padding: EdgeInsets.only(top: 15.0), // 一番上の記事カードとタブバーの間の隙間
+            padding: EdgeInsets.only(top: 0.0), // 一番上の記事カードとタブバーの間の隙間
             child: _buildPostsList("調査/投票"),
           ),
           Padding(
-            padding: EdgeInsets.only(top: 15.0), // 一番上の記事カードとタブバーの間の隙間
+            padding: EdgeInsets.only(top: 0.0), // 一番上の記事カードとタブバーの間の隙間
             child: _buildPostsList("学作紹介"),
           ),
           Padding(
-            padding: EdgeInsets.only(top: 15.0), // 一番上の記事カードとタブバーの間の隙間
+            padding: EdgeInsets.only(top: 0.0), // 一番上の記事カードとタブバーの間の隙間
             child: _buildPostsList("課外活動"),
           ),
         ],
@@ -326,7 +325,7 @@ class _UserState extends State<User> with SingleTickerProviderStateMixin {
         }
 
         return ListView.builder(
-          padding: EdgeInsets.only(bottom: 20), //一番最後のカードの後ろに20の余白
+          padding: EdgeInsets.only(top: 15, bottom: 20), //一番最後のカードの後ろに20の余白
           itemCount: snapshot.data!.docs.length,
           itemBuilder: (context, index) {
             final post = snapshot.data!.docs[index];
