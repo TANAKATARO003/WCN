@@ -242,24 +242,30 @@ class NewsList extends StatelessWidget {
                                     Row(
                                       children: [
                                         Container(
+                                          width: 68,
                                           color: getContainerColor(
                                               news['dateClass']),
-                                          child: Padding(
-                                            padding: EdgeInsets.symmetric(
-                                                vertical: 2.0, horizontal: 8.0),
-                                            child: Text(
-                                              getText(news['dateClass']),
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.w500,
-                                                fontSize: 13,
-                                                color: Colors.white,
+                                          child: Align(
+                                            alignment: Alignment
+                                                .center, // テキストを中央揃えに配置
+                                            child: Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                  vertical: 2.0,
+                                                  horizontal: 8.0),
+                                              child: Text(
+                                                getText(news['dateClass']),
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.w500,
+                                                  fontSize: 13,
+                                                  color: Colors.white,
+                                                ),
                                               ),
                                             ),
                                           ),
                                         ),
                                         Spacer(), // これを入れると、次のRow内のウィジェットが右端に寄せられる
                                         Text(
-                                          news['dateText'],
+                                          '投稿日：' + news['dateText'],
                                           style: TextStyle(
                                             fontWeight: FontWeight.w400,
                                             fontSize: 14,

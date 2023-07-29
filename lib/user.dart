@@ -10,6 +10,26 @@ class User extends StatefulWidget {
   _UserState createState() => _UserState();
 }
 
+String formatDate(DateTime dateTime) {
+  return '${dateTime.year}年${dateTime.month}月${dateTime.day}日';
+}
+
+// dateClassの色判定
+Color getContainerColor(String attribute) {
+  switch (attribute) {
+    case 'イベント':
+      return Color(0xFF7d7d7d);
+    case '調査／投票':
+      return Color(0xFF31517b);
+    case '学作紹介':
+      return Color(0xFF96825a);
+    case '課外活動':
+      return Color(0xFF616d5b);
+    default:
+      return Color(0xFFF0F0F0);
+  }
+}
+
 // 記事カードをタップしたら記事ページを開く
 class PostDetailPage extends StatelessWidget {
   final DocumentSnapshot post;
@@ -60,15 +80,20 @@ class PostDetailPage extends StatelessWidget {
                   children: [
                     SizedBox(height: 20), // 縦に20px間隔を空ける
                     Container(
-                      color: Color(0xFFF0F0F0),
-                      child: Padding(
-                        padding: EdgeInsets.all(2.0),
-                        child: Text(
-                          post['attribute'],
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 13,
-                            color: Color(0xFF808080),
+                      width: 81,
+                      color: getContainerColor(post['attribute']),
+                      child: Align(
+                        alignment: Alignment.center, // テキストを中央揃えに配置
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                              vertical: 2.0, horizontal: 8.0),
+                          child: Text(
+                            post['attribute'],
+                            style: TextStyle(
+                              fontWeight: FontWeight.w500, // FontWeightをw500に変更
+                              fontSize: 13, // フォントサイズを調整
+                              color: Color(0xFFFFFFFF), // テキストの色を#FFFFFFに設定
+                            ),
                           ),
                         ),
                       ),
@@ -88,7 +113,7 @@ class PostDetailPage extends StatelessWidget {
                     Align(
                       alignment: Alignment.centerRight, // 右揃えに設定
                       child: Text(
-                        '投稿日：${(post['timestamp'] as Timestamp).toDate().toString().split(' ')[0]}',
+                        '投稿日：${formatDate((post['timestamp'] as Timestamp).toDate())}',
                         style: TextStyle(fontSize: 12),
                       ),
                     ),
@@ -253,7 +278,7 @@ class _UserState extends State<User> with SingleTickerProviderStateMixin {
                 ),
                 Tab(
                   child: Text(
-                    '調査/投票',
+                    '調査／投票',
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
                   ),
                 ),
@@ -287,7 +312,7 @@ class _UserState extends State<User> with SingleTickerProviderStateMixin {
           ),
           Padding(
             padding: EdgeInsets.only(top: 0.0), // 一番上の記事カードとタブバーの間の隙間
-            child: _buildPostsList("調査/投票"),
+            child: _buildPostsList("調査／投票"),
           ),
           Padding(
             padding: EdgeInsets.only(top: 0.0), // 一番上の記事カードとタブバーの間の隙間
@@ -366,17 +391,22 @@ class _UserState extends State<User> with SingleTickerProviderStateMixin {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Container(
-                              color: Color(0xFFF0F0F0), // 背景色を#F0F0F0に設定
-                              child: Padding(
-                                padding: EdgeInsets.all(2.0), // テキストと四角の間の余白を設定
-                                child: Text(
-                                  post['attribute'],
-                                  style: TextStyle(
-                                    fontWeight:
-                                        FontWeight.w500, // FontWeightをw500に変更
-                                    fontSize: 13, // フォントサイズを調整
-                                    color:
-                                        Color(0xFF808080), // テキストの色を#808080に設定
+                              width: 81,
+                              color: getContainerColor(post['attribute']),
+                              child: Align(
+                                alignment: Alignment.center, // テキストを中央揃えに配置
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 2.0, horizontal: 8.0),
+                                  child: Text(
+                                    post['attribute'],
+                                    style: TextStyle(
+                                      fontWeight:
+                                          FontWeight.w500, // FontWeightをw500に変更
+                                      fontSize: 13, // フォントサイズを調整
+                                      color: Color(
+                                          0xFFFFFFFF), // テキストの色を#FFFFFFに設定
+                                    ),
                                   ),
                                 ),
                               ),
@@ -393,7 +423,7 @@ class _UserState extends State<User> with SingleTickerProviderStateMixin {
                             ),
                             SizedBox(height: 7.5), // 投稿日と記事タイトルの間の隙間
                             Text(
-                              '投稿日：${(post['timestamp'] as Timestamp).toDate().toString().split(' ')[0]}',
+                              '投稿日：${formatDate((post['timestamp'] as Timestamp).toDate())}',
                               style: TextStyle(fontSize: 12),
                             ),
                           ],
@@ -516,8 +546,8 @@ class _UserState extends State<User> with SingleTickerProviderStateMixin {
                             value: "イベント",
                           ),
                           DropdownMenuItem(
-                            child: Text("調査/投票"),
-                            value: "調査/投票",
+                            child: Text("調査／投票"),
+                            value: "調査／投票",
                           ),
                           DropdownMenuItem(
                             child: Text("学作紹介"),

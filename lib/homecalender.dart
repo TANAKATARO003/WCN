@@ -250,17 +250,11 @@ class _HomeCalendarState extends State<HomeCalendar>
                                                 ? '${e.classroom.substring(0, 10)}...'
                                                 : e.classroom;
 
-                                            bool isFirstCard =
-                                                e == schedule.first;
-                                            bool isLastCard =
-                                                e == schedule.last;
-
                                             return Container(
                                                 width: 320.0,
                                                 height: 240.0,
                                                 margin: EdgeInsets.only(
-                                                  left: isFirstCard ? 15 : 0,
-                                                  right: isLastCard ? 0 : 0,
+                                                  left: 5,
                                                   top: 0,
                                                   bottom: 0,
                                                 ),
