@@ -433,7 +433,7 @@ class _CalendarState extends State<Calendar>
                                                       actions: [
                                                         TextButton(
                                                           child: Text(
-                                                            "いいえ",
+                                                            "キャンセル",
                                                           ),
                                                           onPressed: () {
                                                             Navigator.of(

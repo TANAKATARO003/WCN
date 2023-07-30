@@ -12,9 +12,16 @@ class BottomTabPage extends StatefulWidget {
   @override
   _BottomTabPageState createState() => _BottomTabPageState();
 
+  // calendarを開くためのモノ
   static void selectCalendarTab(BuildContext context) {
     final state = context.findAncestorStateOfType<_BottomTabPageState>();
     state?._onItemTapped(1);
+  }
+
+  // serviceを開くためのモノ
+  static void selectServiceTab(BuildContext context) {
+    final state = context.findAncestorStateOfType<_BottomTabPageState>();
+    state?._onItemTapped(4);
   }
 }
 
@@ -57,7 +64,13 @@ class _BottomTabPageState extends State<BottomTabPage> {
 
   void _onItemTapped(int index) => setState(() => _currentIndex = index);
 
+  // calendarを開くためのモノ2
   void selectCalendarTab() {
     _onItemTapped(1); // カレンダータブのインデックスは1
+  }
+
+  // serviceを開くためのモノ
+  void selectServiceTab() {
+    _onItemTapped(4); // カレンダータブのインデックスは1
   }
 }

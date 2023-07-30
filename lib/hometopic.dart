@@ -186,9 +186,9 @@ class NewsList extends StatelessWidget {
                                         ),
                                       );
                                     } else {
-                                      // Firebase Storageからnoimage.pngを試みる
+                                      // Firebase Storageからnoimage2.pngを試みる
                                       return FutureBuilder<Uint8List?>(
-                                        future: fetchurlimage("noimage.png"),
+                                        future: fetchurlimage("noimage2.png"),
                                         builder: (context, secondarySnapshot) {
                                           if (secondarySnapshot
                                                   .connectionState ==
@@ -203,9 +203,9 @@ class NewsList extends StatelessWidget {
                                                 fit: BoxFit.cover,
                                               );
                                             } else {
-                                              // assetsからnoimage.pngを試みる
+                                              // assetsからnoimage2.pngを試みる
                                               return Image.asset(
-                                                'assets/noimage.png',
+                                                'assets/noimage2.png',
                                                 width: 320,
                                                 height: 140,
                                                 fit: BoxFit.cover,

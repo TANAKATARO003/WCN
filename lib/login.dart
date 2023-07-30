@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:home/signup.dart';
-
 import 'bottom_tab_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -13,6 +12,10 @@ class _LoginPageState extends State<LoginPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
+  final _passwordController = TextEditingController();
+  bool _passwordVisible = false;
+
+  bool _obscureText = true;
   String _email = '', _password = '';
 
   checkAuthentication() async {
@@ -49,16 +52,37 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  void showError(String errorMessage) {
+  String getErrorMessage(String code) {
+    switch (code) {
+      case 'user-not-found':
+        return 'ユーザーが見つかりません。ログインに失敗しました。';
+      case 'wrong-password':
+        return 'パスワードが間違っています。ログインに失敗しました。';
+      case 'invalid-email':
+        return '無効なメールアドレス形式です。ログインに失敗しました。';
+      default:
+        return '未知のエラーが発生し、ログインに失敗しました。';
+    }
+  }
+
+  void showError(String error) {
+    String errorMessage = getErrorMessage(error);
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('エラー'),
+          title: Row(
+            children: [
+              Icon(Icons.warning,
+                  size: 24.0, color: Colors.red), // アイコンの色を赤色に設定
+              SizedBox(width: 7.5),
+              Text('ログイン失敗'),
+            ],
+          ),
           content: Text(errorMessage),
           actions: <Widget>[
             TextButton(
-              child: Text('OK'),
+              child: Text('閉じる'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -139,21 +163,33 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 SizedBox(height: 5.0), // テキストと入力フィールドの間の隙間を作る
                 TextFormField(
-                  style: TextStyle(height: 0.75), // heightの値を調整して入力フィールドの縦幅を変更
+                  controller: _passwordController,
+                  style: TextStyle(height: 0.75),
                   validator: (input) {
-                    if (input!.length < 6) return 'パスワードは6文字以上にしてください';
+                    if (input!.length < 6) return 'パスワードを入力してください';
                   },
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: Color(0xFFe8e8e8), // フィールドの背景色を#e8e8e8に変更
-                    border: InputBorder.none, // 入力フィールドの縁を削除
+                    fillColor: Color(0xFFe8e8e8),
+                    border: InputBorder.none,
                     enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide.none, // 縁無しを指定
-                      borderRadius:
-                          BorderRadius.circular(10.0), // 角を丸くする値を10.0に設定
+                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _passwordVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _passwordVisible = !_passwordVisible;
+                        });
+                      },
                     ),
                   ),
-                  obscureText: true,
+                  obscureText: !_passwordVisible,
                   onSaved: (input) => _password = input!,
                 ),
                 SizedBox(height: 15), // 入力フィールドとログインするのスペース幅
@@ -183,7 +219,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ),
-                SizedBox(height: 10),
+                SizedBox(height: 20),
                 Column(
                   children: <Widget>[
                     GestureDetector(
@@ -204,37 +240,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 7.5), // テキスト間のスペース幅
-                    GestureDetector(
-                      onTap: navigateToSignUpScreen,
-                      child: Text(
-                        'パスワードを忘れた場合',
-                        style: TextStyle(
-                          fontSize: 14.5,
-                          fontWeight: FontWeight.w400,
-                          color: const Color(0xFFed6102),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 7.5), // テキスト間のスペース幅
-                    GestureDetector(
-                      onTap: () async {
-                        await FirebaseAuth.instance.signOut();
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(
-                            builder: (context) => BottomTabPage(),
-                          ),
-                        );
-                      },
-                      child: Text(
-                        'ログインせずにゲストとして続行',
-                        style: TextStyle(
-                          fontSize: 14.5,
-                          fontWeight: FontWeight.w400,
-                          color: const Color(0xFFed6102),
-                        ),
-                      ),
-                    ),
+                    SizedBox(height: 5.0), // テキストの後のスペース幅
                   ],
                 )
               ],

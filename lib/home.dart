@@ -1,13 +1,316 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'homecalender.dart';
+import 'homefacility.dart';
 import 'hometopic.dart';
 import 'login.dart';
 
 class HomeCarousel extends StatefulWidget {
   @override
   _HomeCarouselState createState() => _HomeCarouselState();
+}
+
+// _launchInBrowser関数（デフォルトブラウザで起動）
+final Uri _urlToOpen = Uri.parse('https://www.wakayama-u.ac.jp/');
+
+Future<void> _launchUrl(Uri url) async {
+  if (!await launch(url.toString())) {
+    throw Exception('Could not launch $url');
+  }
+}
+
+// カルーセルを押すとダイアログが開く
+Future<void> _showDialog(BuildContext context) async {
+  return showDialog<void>(
+    context: context,
+    barrierDismissible: true,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('確認'),
+        content: SingleChildScrollView(
+          child: ListBody(
+            children: <Widget>[
+              Text('外部ブラウザを起動して和歌山大学ホームページを表示しますが、よろしいですか？'),
+            ],
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            child: Text('キャンセル'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+          TextButton(
+            child: Text('はい'),
+            onPressed: () {
+              _launchUrl(_urlToOpen);
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
+// 設定ページ
+class SettingsPage extends StatelessWidget {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  @override
+  Widget build(BuildContext context) {
+    final User user = _auth.currentUser!;
+    final String email = user.email ?? 'No email found';
+
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          // 戻るボタンの実装
+          icon: Icon(Icons.arrow_back_ios, color: Colors.black), // ここで色を黒に指定
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: Text(
+          "設定",
+          style: TextStyle(
+              fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+        ),
+        shadowColor: Colors.grey.withOpacity(0.5),
+        backgroundColor: Colors.white,
+        elevation: 1.5,
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
+              padding: EdgeInsets.fromLTRB(16.0, 18.0, 16.0, 12.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment
+                        .center, // これにより、子ウィジェットは縦方向の中央に配置されます
+                    children: [
+                      Icon(Icons.info, color: Color(0xFF808080), size: 24),
+                      SizedBox(width: 10.0),
+                      Text(
+                        '登録情報',
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.w400,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 20.0),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center, // 中央揃えに配置
+                    children: [
+                      Container(
+                        height: 26,
+                        width: 107,
+                        color: Color(0xFF96825a),
+                        child: Align(
+                          alignment: Alignment.center, // テキストを中央揃えに配置
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                                vertical: 2.0, horizontal: 8.0),
+                            child: Text(
+                              'メールアドレス',
+                              style: TextStyle(
+                                fontWeight:
+                                    FontWeight.w500, // FontWeightをw500に変更
+                                fontSize: 13, // フォントサイズを調整
+                                color: Color(0xFFFFFFFF), // テキストの色を#FFFFFFに設定
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 10.0), // テキストとメールアドレスの間を追加
+                      Expanded(
+                        child: Text(
+                          _auth.currentUser?.email ?? 'No email found',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 10.0),
+                  FutureBuilder<DocumentSnapshot>(
+                    future: _firestore.collection('users').doc(user.uid).get(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.done) {
+                        if (!snapshot.hasData) {
+                          return Text('データが見つかりません');
+                        }
+                        final data = snapshot.data!;
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  height: 26,
+                                  width: 107,
+                                  color: Color(0xFF96825a),
+                                  child: Align(
+                                    alignment: Alignment.center, // テキストを中央揃えに配置
+                                    child: Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: 2.0, horizontal: 8.0),
+                                      child: Text(
+                                        '学部',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight
+                                              .w500, // FontWeightをw500に変更
+                                          fontSize: 13, // フォントサイズを調整
+                                          color: Color(
+                                              0xFFFFFFFF), // テキストの色を#FFFFFFに設定
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(width: 10.0), // テキストと学部の間を追加
+                                Text(
+                                  '${data['faculty'] ?? '情報なし'}',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 14.0,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 10.0),
+                            Row(
+                              children: [
+                                Container(
+                                  height: 26,
+                                  width: 107,
+                                  color: Color(0xFF96825a),
+                                  child: Align(
+                                    alignment: Alignment.center, // テキストを中央揃えに配置
+                                    child: Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: 2.0, horizontal: 8.0),
+                                      child: Text(
+                                        '学年',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight
+                                              .w500, // FontWeightをw500に変更
+                                          fontSize: 13, // フォントサイズを調整
+                                          color: Color(
+                                              0xFFFFFFFF), // テキストの色を#FFFFFFに設定
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(width: 10.0), // テキストと学年の間を追加
+                                Text(
+                                  '${data['year'] ?? '情報なし'}',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 14.0,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        );
+                      }
+                      return Container();
+                    },
+                  ),
+                ],
+              ),
+            ),
+            Divider(color: Colors.black45),
+            GestureDetector(
+              onTap: () async {
+                bool? shouldLogoutResult = await showDialog<bool>(
+                  context: context,
+                  builder: (BuildContext context) => AlertDialog(
+                    title: Row(
+                      children: [
+                        Icon(Icons.warning, size: 24.0, color: Colors.red),
+                        SizedBox(width: 7.5),
+                        Text('ログアウト確認'),
+                      ],
+                    ),
+                    content: SingleChildScrollView(
+                      child: ListBody(
+                        children: <Widget>[
+                          Text('ログアウトすると、再ログインするまで機能が利用出来ません。ログアウトしますか？'),
+                        ],
+                      ),
+                    ),
+                    actions: [
+                      TextButton(
+                          child: Text('キャンセル'),
+                          onPressed: () => Navigator.pop(context, false)),
+                      TextButton(
+                          child: Text('はい'),
+                          onPressed: () async {
+                            await FirebaseAuth.instance.signOut();
+                            Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(
+                                    builder: (context) => LoginPage()));
+                          }),
+                    ],
+                  ),
+                );
+                bool shouldLogout = shouldLogoutResult ?? false;
+                if (!shouldLogout) {
+                  return;
+                }
+              },
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.exit_to_app,
+                      color: Colors.red,
+                      size: 24,
+                    ),
+                    SizedBox(width: 10.0),
+                    Expanded(
+                      child: Text(
+                        'ログアウト',
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.w400,
+                          color: Colors.red,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Divider(color: Colors.black45),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _HomeCarouselState extends State<HomeCarousel> {
@@ -93,84 +396,14 @@ class Home extends StatelessWidget {
                 Padding(
                     padding: EdgeInsets.only(
                         top: 10.0, right: 20.0), // ログアウト用アイコンの位置調整
-                    child: PopupMenuButton<String>(
-                      offset: Offset(0, 40),
-                      onSelected: (String result) async {
-                        if (result == 'logout') {
-                          bool? shouldLogoutResult = await showDialog<bool>(
-                              context: context,
-                              builder: (BuildContext context) => AlertDialog(
-                                    title: Row(
-                                      children: [
-                                        Icon(Icons.warning,
-                                            size: 24.0,
-                                            color: Colors.red), // アイコンの色を赤色に設定
-                                        SizedBox(width: 7.5),
-                                        Text('ログアウト確認'),
-                                      ],
-                                    ),
-                                    content: SingleChildScrollView(
-                                      child: ListBody(
-                                        children: <Widget>[
-                                          Text(
-                                              'ログアウトすると、再ログインするまで機能が利用出来ません。ログアウトしますか？'),
-                                        ],
-                                      ),
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                          child: Text('いいえ'),
-                                          onPressed: () =>
-                                              Navigator.pop(context, false)),
-                                      TextButton(
-                                          child: Text('はい'),
-                                          onPressed: () async {
-                                            await FirebaseAuth.instance
-                                                .signOut();
-                                            Navigator.of(context)
-                                                .pushReplacement(
-                                                    MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            LoginPage()));
-                                          }),
-                                    ],
-                                  ));
-                          bool shouldLogout = shouldLogoutResult ?? false;
-                          if (!shouldLogout) {
-                            return;
-                          }
-                        } // 新: ダイアログでのログアウトの確認処理
-                        // ここに '登録情報' を選択した際の処理も追加できます。
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => SettingsPage()),
+                        );
                       },
-                      itemBuilder: (BuildContext context) =>
-                          <PopupMenuEntry<String>>[
-                        PopupMenuItem<String>(
-                          value: 'profile',
-                          child: Row(
-                            children: <Widget>[
-                              Icon(Icons.info,
-                                  size: 24.0,
-                                  color:
-                                      Color(0xFF808080)), // アイコンの色を#808080に設定
-                              SizedBox(width: 7.5),
-                              Text('登録情報', style: TextStyle(fontSize: 16.0)),
-                            ],
-                          ),
-                        ),
-                        PopupMenuItem<String>(
-                          value: 'logout',
-                          child: Row(
-                            children: <Widget>[
-                              Icon(Icons.exit_to_app,
-                                  size: 24.0,
-                                  color:
-                                      Color(0xFF808080)), // アイコンの色を#808080に設定
-                              SizedBox(width: 7.5),
-                              Text('ログアウト', style: TextStyle(fontSize: 16.0)),
-                            ],
-                          ),
-                        ),
-                      ],
                       child: CircleAvatar(
                         child: Icon(
                           Icons.account_circle,
@@ -200,7 +433,11 @@ class Home extends StatelessWidget {
         body: ListView(
           children: [
             // カルーセル
-            HomeCarousel(),
+            GestureDetector(
+                onTap: () {
+                  _showDialog(context);
+                },
+                child: HomeCarousel()),
             SizedBox(height: 20),
 
             // トピック
@@ -217,10 +454,10 @@ class Home extends StatelessWidget {
             ),
             SizedBox(height: 20),
 
-            // 食堂メニュー
+            // 施設利用可能時間
             Container(
               height: 268,
-              child: HomeCalendar(),
+              child: HomeFacility(),
             ),
             SizedBox(height: 20),
           ],

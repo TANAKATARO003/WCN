@@ -117,6 +117,7 @@ class PostDetailPage extends StatelessWidget {
                         style: TextStyle(fontSize: 12),
                       ),
                     ),
+                    SizedBox(height: 20), // 縦に20px間隔を空ける
                   ],
                 ),
               ),
