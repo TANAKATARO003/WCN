@@ -31,6 +31,19 @@ dev_dependencies:  # 開発時に依存するパッケージ
     sdk: flutter
   intl: ^0.18.1  # 日付と時間のフォーマット
   flutter_lints: ^2.0.0  # Flutterの推奨されるリントルール
+  flutter_native_splash: ^2.3.1 #アプリ起動時のアイコン表示関連
+
+flutter_native_splash:
+  color: '#ed6102'
+  image: 'assets/ic_launcher_foreground.png'
+  color_dark: '#000000'
+  image_dark: 'assets/ic_launcher_foreground.png'
+  fullscreen: true
+  android_12:
+    icon_background_color: '#ed6102'
+    image: 'assets/ic_launcher_foreground.png'
+    icon_background_color_dark: '#000000'
+    image_dark: 'assets/ic_launcher_foreground.png'
 
 flutter:  # Flutterの設定
   uses-material-design: true  # Material Iconsを使用する設定
