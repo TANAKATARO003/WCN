@@ -15,7 +15,6 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
   bool _passwordVisible = false;
 
-  bool _obscureText = true;
   String _email = '', _password = '';
 
   checkAuthentication() async {

@@ -127,12 +127,18 @@ void main() async {
   facilitytimedata = await loadfacilitytimedata();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(MyApp());
+  // ここでアプリ画面を横向きに出来ないように設定
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
 }
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primaryColor: Color(0xFFFFFFFF),
         fontFamily: 'Zen_Kaku_Gothic_New',

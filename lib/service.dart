@@ -250,135 +250,215 @@ class _ServiceState extends State<Service> with SingleTickerProviderStateMixin {
             // ここで施設利用可能時間を表示
             showFacilityTime(facilitytimedata),
             // ここで食堂を表示
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Container(
-                    width: MediaQuery.of(context).size.width - 40,
-                    height: 80,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => DaiichiPage()));
-                        // Navigator.push(context, MaterialPageRoute(builder: (context) => GenkiCafeteriaPage()));
-                      },
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            SingleChildScrollView(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    // ここに新しいウィジェットを追加
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(
+                          20.0, 15.0, 20.0, 5.0), // 左20, 上15, 右20, 下5 のパディングを追加
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            child: Column(
-                              mainAxisAlignment:
-                                  MainAxisAlignment.center, // 縦方向の中央に配置
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.restaurant_menu,
+                                color: Color(0xFFed6102),
+                                size: 24.0,
+                              ),
+                              SizedBox(width: 5.0),
+                              Text(
+                                '学生食堂',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 5.0), // 5の隙間
+                          Text(
+                            '　学生食堂では毎日70〜90品目のメニューが提供されていますが、飽きがこないようメニューは頻繁に替わっています。そんな学生食堂の本日の提供メニューをこちらで確認可能です。',
+                            style: TextStyle(
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 10.0), // 5の隙間
+                    Container(
+                      width: MediaQuery.of(context).size.width - 40,
+                      height: 260,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => DaiichiPage()));
+                          // Navigator.push(context, MaterialPageRoute(builder: (context) => GenkiCafeteriaPage()));
+                        },
+                        child: Column(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(10.0),
+                                topRight: Radius.circular(10.0),
+                              ),
+                              child: Image.asset(
+                                'assets/第一食堂.png',
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                                height: 160,
+                              ),
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  '第一食堂',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(fontSize: 20),
+                                Expanded(
+                                  child: Padding(
+                                    padding: EdgeInsets.only(
+                                        left: 15.0), // 左側のパディングを15に設定
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment
+                                          .start, // 横方向は左端揃えにする
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center, // 縦方向の中央に配置
+                                      children: [
+                                        Text(
+                                          '第一食堂',
+                                          style: TextStyle(fontSize: 20),
+                                        ),
+                                        SizedBox(
+                                          height: 10,
+                                        ),
+                                        Text(
+                                          '（月～金）11:00 - 19:00　（土）11:00 - 13:30',
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w400),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 ),
-                                SizedBox(
-                                  height: 5,
-                                ),
-                                Text(
-                                  '（月～金）11:00 - 19:00　（土）11:00 - 13:30',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w400),
+                                // 右端から20の位置に配置される矢印アイコン
+                                Padding(
+                                  padding:
+                                      EdgeInsets.symmetric(horizontal: 15.0),
+                                  child: Icon(Icons.arrow_forward_ios),
                                 ),
                               ],
                             ),
-                          ),
-                          // 右端から20の位置に配置される矢印アイコン
-                          Icon(Icons.arrow_forward_ios),
-                        ],
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
+                          ],
                         ),
-
-                        // ボタンの背景色
-                        primary: Colors.white,
-
-                        // ボタン内のテキスト色
-                        onPrimary: Colors.black,
-
-                        // ボタンの幅をパディングを除いた領域まで拡張
-                        minimumSize: Size(
-                          double.infinity,
-                          50,
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.zero, // デフォルトのボタン内パディングを消す
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          primary: Colors.white,
+                          onPrimary: Colors.black,
+                          minimumSize: Size(
+                            double.infinity,
+                            260,
+                          ),
                         ),
                       ),
                     ),
-                  ),
 
-                  // ボタン間のスペース
-                  SizedBox(height: 15.0),
+                    // ボタン同士の間のスペース
+                    SizedBox(height: 10.0),
 
-                  Container(
-                    width: MediaQuery.of(context).size.width - 40,
-                    height: 80,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => GenkiPage()));
-                        // Navigator.push(context, MaterialPageRoute(builder: (context) => GenkiCafeteriaPage()));
-                      },
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              mainAxisAlignment:
-                                  MainAxisAlignment.center, // 縦方向の中央に配置
+                    Container(
+                      width: MediaQuery.of(context).size.width - 40,
+                      height: 260,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => GenkiPage()));
+                        },
+                        child: Column(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(10.0),
+                                topRight: Radius.circular(10.0),
+                              ),
+                              child: Image.asset(
+                                'assets/ＧＥＮＫＩ食堂.png',
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                                height: 160,
+                              ),
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  'ＧＥＮＫＩ食堂',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(fontSize: 20),
+                                Expanded(
+                                  child: Padding(
+                                    padding: EdgeInsets.only(
+                                        left: 15.0), // 左側のパディングのみを追加
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment
+                                          .start, // 横方向は左端揃えにする
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center, // 縦方向の中央に配置
+                                      children: [
+                                        Text(
+                                          'ＧＥＮＫＩ食堂',
+                                          style: TextStyle(fontSize: 20),
+                                        ),
+                                        SizedBox(
+                                          height: 10,
+                                        ),
+                                        Text(
+                                          '（月～金）11:00 - 13:30',
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w400),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 ),
-                                SizedBox(
-                                  height: 5,
-                                ),
-                                Text(
-                                  '（月～金）11:00 - 13:30',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w400),
+                                // 右端から20の位置に配置される矢印アイコン
+                                Padding(
+                                  padding:
+                                      EdgeInsets.symmetric(horizontal: 15.0),
+                                  child: Icon(Icons.arrow_forward_ios),
                                 ),
                               ],
                             ),
-                          ),
-                          // 右端から20の位置に配置される矢印アイコン
-                          Icon(Icons.arrow_forward_ios),
-                        ],
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
+                          ],
                         ),
-
-                        // ボタンの背景色
-                        primary: Colors.white,
-
-                        // ボタン内のテキスト色
-                        onPrimary: Colors.black,
-
-                        // ボタンの幅をパディングを除いた領域まで拡張
-                        minimumSize: Size(
-                          double.infinity,
-                          50,
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.zero, // デフォルトのボタン内パディングを消す
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          primary: Colors.white,
+                          onPrimary: Colors.black,
+                          minimumSize: Size(
+                            double.infinity,
+                            260,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ],

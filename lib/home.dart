@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'homecalender.dart';
 import 'homefacility.dart';
@@ -55,6 +56,111 @@ Future<void> _showDialog(BuildContext context) async {
       );
     },
   );
+}
+
+// スイッチの状態を保存したり更新したりするための関数
+class PreferencesHelper {
+  static Future<void> setSwitchState(bool value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('switchState', value);
+  }
+
+  static Future<bool> getSwitchState() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('switchState') ?? false;
+  }
+}
+
+// スイッチのためのセクション
+class SwitchSection extends StatefulWidget {
+  @override
+  _SwitchSectionState createState() => _SwitchSectionState();
+}
+
+class _SwitchSectionState extends State<SwitchSection>
+    with TickerProviderStateMixin {
+  bool _isSwitched = false;
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // 初期化時に保存されたスイッチの状態を取得する
+    PreferencesHelper.getSwitchState().then((value) {
+      setState(() {
+        _isSwitched = value;
+      });
+    });
+
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1000),
+      vsync: this,
+    );
+    _animation = Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.elasticIn,
+    ))
+      ..addListener(() {
+        setState(() {});
+      })
+      ..addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          _controller.reverse();
+        }
+      });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 48,
+      padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 0.0),
+      child: Row(
+        children: [
+          Transform.rotate(
+            angle: _animation.value,
+            child: Icon(
+              Icons.notifications,
+              color: _isSwitched ? Colors.blue : Color(0xFF808080),
+              size: 24,
+            ),
+          ),
+          SizedBox(width: 10.0),
+          Expanded(
+            child: Text(
+              'プッシュ通知',
+              style: TextStyle(
+                fontSize: 16.0,
+                fontWeight: FontWeight.w400,
+                color: Colors.black,
+              ),
+            ),
+          ),
+          Switch(
+            value: _isSwitched,
+            onChanged: (value) {
+              setState(() {
+                _isSwitched = value;
+              });
+
+              // スイッチの状態を変更する度に保存
+              PreferencesHelper.setSwitchState(value);
+
+              _controller.forward(from: 0);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 }
 
 // 設定ページ
@@ -242,6 +348,11 @@ class SettingsPage extends StatelessWidget {
               ),
             ),
             Divider(color: Colors.black45),
+
+            // 新しく追加するコード
+            SwitchSection(),
+            Divider(color: Colors.black45),
+
             GestureDetector(
               onTap: () async {
                 bool? shouldLogoutResult = await showDialog<bool>(
